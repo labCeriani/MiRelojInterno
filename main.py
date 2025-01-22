@@ -1063,8 +1063,8 @@ def main():
     df_all = None  # Initialize df_all as None
 
     # Manually upload CSV files using the file uploader
-    uploaded_before = st.file_uploader("Upload the 'Before' CSV")
-    uploaded_after = st.file_uploader("Upload the 'After' CSV")
+    uploaded_before = st.file_uploader("Cargar la base de datos previo al crash en formato CSV")
+    uploaded_after = st.file_uploader("Cargar la base de datos posterior al crash en formato CSV")
    
     data_loader = DataLoader()
 
