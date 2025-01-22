@@ -89,6 +89,18 @@ age_categories = ['Jóvenes', 'Adultos', 'Tercera Edad']
 category_colors = {'Jóvenes': custom_colors['Green_Jóvenes'],'Adultos': custom_colors['Yellow_Adultos'],'Tercera Edad': custom_colors['Orange_TerceraEdad']}
 category_colors_gender = {'Jóvenes': [custom_colors['Green_Jóvenes_0'], custom_colors['Green_Jóvenes_1']],'Adultos': [custom_colors['Yellow_Adultos_0'], custom_colors['Yellow_Adultos_1']],'Tercera Edad': [custom_colors['Orange_TerceraEdad_0'], custom_colors['Orange_TerceraEdad_1']]}
 
+
+class CredentialManager:
+    def __init__(self):
+        # Definir las credenciales como un diccionario
+        self.credentials = {
+            "usuario": "contrasena"  # Cambia esto a tus credenciales deseadas
+        }
+    
+    def validate_user(self, username, password):
+        # Verificar si las credenciales son válidas
+        return username in self.credentials and self.credentials[username] == password
+
 class DataLoader: 
     def __init__(self):
         self.df = pd.DataFrame()
