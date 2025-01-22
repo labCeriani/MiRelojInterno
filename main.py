@@ -1056,7 +1056,7 @@ class PlotGenerator:
         st.pydeck_chart(deck)
 
 def main():
-    st.title("CSV File Upload and Data Analysis")
+    st.title("Cargar base de datos")
 
     # Initialize the DataLoader
     
@@ -1138,4 +1138,4 @@ def main():
 main()
 
 
-#streamlit run '/Users/tomasmendietarios/Library/Mobile Documents/com~apple~CloudDocs/I.T.B.A/MRI/main.py'
+#streamlit run '/Users/tomasmendietarios/Library/Mobile Documents/com~apple~CloudDocs/I.T.B.A/MiRelojInterno/main.py'
