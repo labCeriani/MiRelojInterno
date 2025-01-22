@@ -93,11 +93,32 @@ category_colors_gender = {'Jóvenes': [custom_colors['Green_Jóvenes_0'], custom
 class Authentication:
     def __init__(self):
         self.credentials = {
-            "admin": "password123"  # Replace with your desired username and password
+            "MRI": "MRI-TABLERO-2025"  # Replace with your desired username and password
         }
 
     def validate_user(self, username, password):
         return self.credentials.get(username) == password
+
+class DatabaseUploader:
+    def __init__(self):
+        self.uploaded_before = None
+        self.uploaded_after = None
+
+    def upload_data(self):
+        # Manually upload CSV files using the file uploader
+        self.uploaded_before = st.file_uploader("Cargar la base de datos previo al crash en formato CSV")
+        self.uploaded_after = st.file_uploader("Cargar la base de datos posterior al crash en formato CSV")
+
+        return self.uploaded_before, self.uploaded_after
+
+    def load_data(self, data_loader):
+        # Load the data using DataLoader
+        if self.uploaded_before is not None and self.uploaded_after is not None:
+            with st.spinner("Loading data..."):
+                return data_loader.load_data(self.uploaded_before, self.uploaded_after, 'Geo.csv')
+
+        return None
+
 
 class DataLoader: 
     def __init__(self):
