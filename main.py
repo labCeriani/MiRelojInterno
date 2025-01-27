@@ -624,7 +624,7 @@ class PlotGenerator:
                     
     def choose_plot(self):
         if st.session_state[f'plot_{self.plot_id}'] == 'Fecha de recepción de datos':
-            st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>Fecha de recepción de datos</h1>", unsafe_allow_html=True)
+            st.title("Fecha de recepeción de Datos")            
             self.colors()
             self.df['date_recepcion_data'] = pd.to_datetime(self.df['date_recepcion_data'], format='%Y-%m-%d %H:%M:%S')
             self.df['month'] = self.df['date_recepcion_data'].dt.to_period('M')
@@ -636,6 +636,7 @@ class PlotGenerator:
             self.y = 'count'
             self.lineplot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Edad':
+            st.title("Rangos etarios") 
             self.colors()
             self.bins = 20
             self.count = 'age_category'
@@ -644,6 +645,7 @@ class PlotGenerator:
             self.count = 'age_category'
             self.pie_edad()
         elif st.session_state[f'plot_{self.plot_id}'] == "Provincia":
+            st.title("Distribución de localidades") 
             self.map()
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -655,9 +657,10 @@ class PlotGenerator:
             self.count_plot()
             self.rotation = None   
         elif st.session_state[f'plot_{self.plot_id}'] == 'Percepción de cambio':
-            st.write('Cuánto crees que cambiaste tus hábitos por las recomendaciones?')
-            st.write('1: Muy Poco')
-            st.write('5: Completamente')
+            st.title('Percepción de cambio')
+            st.subheader('Cuánto crees que cambiaste tus hábitos por las recomendaciones?')
+            st.subheader('1: Muy Poco')
+            st.subheader('5: Completamente')
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
