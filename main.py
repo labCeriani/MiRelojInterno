@@ -14,20 +14,28 @@ blue = sns.color_palette("Blues", n_colors=5)
 orange = sns.color_palette("Oranges", n_colors=5)
 yellow = sns.color_palette("YlOrBr", n_colors=5)
 green = sns.color_palette("Greens", n_colors=5)
+reds = sns.color_palette("Reds", n_colors=5)
 
 custom_colors = {
-    'Green_Jóvenes': mcolors.rgb2hex(green[2]),   
-    'Green_Jóvenes_0': mcolors.rgb2hex(green[1]),  
-    'Green_Jóvenes_1': mcolors.rgb2hex(green[3]),  
-    'Yellow_Adultos': mcolors.rgb2hex(yellow[1]), 
-    'Yellow_Adultos_0': mcolors.rgb2hex(yellow[0]),  
-    'Yellow_Adultos_1': mcolors.rgb2hex(yellow[2]),  
-    'Orange_TerceraEdad': mcolors.rgb2hex(orange[3]),  
-    'Orange_TerceraEdad_0': mcolors.rgb2hex(orange[2]),  
-    'Orange_TerceraEdad_1': mcolors.rgb2hex(orange[4]),  
-    'Blue': mcolors.rgb2hex(blue[2]),  
-    'Blue_0': mcolors.rgb2hex(blue[1]),  
-    'Blue_1': mcolors.rgb2hex(blue[3])   
+    'cat_A': mcolors.rgb2hex(green[2]),   
+    'cat_A_0': mcolors.rgb2hex(green[1]),  
+    'cat_A_1': mcolors.rgb2hex(green[3]),  
+    
+    'cat_B': mcolors.rgb2hex(yellow[1]), 
+    'cat_B_0': mcolors.rgb2hex(yellow[0]),  
+    'cat_B_1': mcolors.rgb2hex(yellow[2]),  
+    
+    'cat_C': mcolors.rgb2hex(orange[3]),  
+    'cat_C_0': mcolors.rgb2hex(orange[2]),  
+    'cat_C_1': mcolors.rgb2hex(orange[4]),  
+    
+    'cat_D': mcolors.rgb2hex(reds[3]),  
+    'cat_D_0': mcolors.rgb2hex(reds[2]),  
+    'cat_D_1': mcolors.rgb2hex(reds[4]),  
+
+    'cat_todos': mcolors.rgb2hex(blue[2]),  
+    'cat_todos_0': mcolors.rgb2hex(blue[1]),  
+    'cat_todos_1': mcolors.rgb2hex(blue[3])   
 }
 
 def adjust_palette(palette, is_lighter=True):
@@ -45,8 +53,11 @@ orange_1 = adjust_palette(orange, is_lighter=False)  # Darker orange
 yellow_0 = adjust_palette(yellow, is_lighter=True)  # Lighter yellow
 yellow_1 = adjust_palette(yellow, is_lighter=False)  # Darker yellow
 
-green_0 = adjust_palette(green, is_lighter=True)    # Lighter green
+green_0 = adjust_palette(green, is_lighter=True)    
 green_1 = adjust_palette(green, is_lighter=False)  
+
+red_0 = adjust_palette(reds, is_lighter=True)    
+red_1 = adjust_palette(reds, is_lighter=False)
 
 data_dictionary = {
     'Fecha de recepción de datos': 'date_recepcion_data',
@@ -85,9 +96,9 @@ data_dictionary = {
     'Desviación Jet Lag Social': 'SJL',
     'Hora de inicio de sueño no laboral centrada': 'HAB_SOnw_centrado'
 }
-age_categories = ['Jóvenes', 'Adultos', 'Tercera Edad']
-category_colors = {'Jóvenes': custom_colors['Green_Jóvenes'],'Adultos': custom_colors['Yellow_Adultos'],'Tercera Edad': custom_colors['Orange_TerceraEdad']}
-category_colors_gender = {'Jóvenes': [custom_colors['Green_Jóvenes_0'], custom_colors['Green_Jóvenes_1']],'Adultos': [custom_colors['Yellow_Adultos_0'], custom_colors['Yellow_Adultos_1']],'Tercera Edad': [custom_colors['Orange_TerceraEdad_0'], custom_colors['Orange_TerceraEdad_1']]}
+age_categories = ['A', 'B', 'C', 'D']
+category_colors = {'A': custom_colors['cat_A'],'B': custom_colors['cat_B'],'C': custom_colors['cat_C'], 'D': custom_colors['cat_D']}
+category_colors_gender = {'A': [custom_colors['cat_A_0'], custom_colors['cat_A_1']],'B': [custom_colors['cat_B_0'], custom_colors['cat_B_1']],'C': [custom_colors['cat_C_0'], custom_colors['cat_C_1']], 'D': [custom_colors['cat_D_0'], custom_colors['cat_D_1']]}
 
 
 class Authentication:
@@ -174,7 +185,7 @@ class DataLoader:
 
         self.convert_columns_to_int(columns_int)    
             
-        self.df = self.categorize_age(self.df,20,60)
+        self.df = self.categorize_age(self.df,20,60,80)
         
         return self.df
     
@@ -192,17 +203,19 @@ class DataLoader:
         else:
             return 'Fuera de Rango'
    
-    def categorize_age(self, df, age_adult_min, age_tercera_edad_min):
+    def categorize_age(self, df, age_b_min, age_c_min, age_d_min):
         def age_category(age):
-            if age < age_adult_min:
-                return 'Jóvenes'
-            elif age < age_tercera_edad_min:
-                return 'Adultos'
+            if age < age_b_min:
+                return 'A'  # Youngest
+            elif age < age_c_min:
+                return 'B'
+            elif age < age_d_min:
+                return 'C'
             else:
-                return 'Tercera Edad'
+                return 'D'  # Oldest
         df['age_category'] = df['age'].apply(age_category)
         return df
-    
+
     def convert_columns_to_int(self, columns_to_convert):
         def convert_value(value):
             if pd.isna(value):  # Check for NaN values
@@ -245,15 +258,18 @@ class StreamLit:
         if 'df_selected_' + self.plot_id not in st.session_state:
             st.session_state['df_selected_' + self.plot_id] = self.df
 
-        if 'age_joven_min_' + self.plot_id not in st.session_state:
-            st.session_state['age_joven_min_' + self.plot_id] = 18
+        if 'age_a_min_' + self.plot_id not in st.session_state:
+            st.session_state['age_a_min_' + self.plot_id] = 18
 
-        if 'age_adult_min_' + self.plot_id not in st.session_state:
-            st.session_state['age_adult_min_' + self.plot_id] = 30
+        if 'age_b_min_' + self.plot_id not in st.session_state:
+            st.session_state['age_b_min_' + self.plot_id] = 30
 
-        if 'age_tercera_edad_min_' + self.plot_id not in st.session_state:
-            st.session_state['age_tercera_edad_min_' + self.plot_id] = 60
+        if 'age_c_min_' + self.plot_id not in st.session_state:
+            st.session_state['age_c_min_' + self.plot_id] = 60
 
+        if 'age_d_min_' + self.plot_id not in st.session_state:
+            st.session_state['age_d_min_' + self.plot_id] = 80
+            
         if 'recommendations_selectbox_' + self.plot_id not in st.session_state:
             st.session_state['recommendations_selectbox_' + self.plot_id] = 'Si'
 
@@ -323,14 +339,15 @@ class StreamLit:
         st.sidebar.checkbox(f"Edades", key='all_ages_checkbox_' + self.plot_id)
         if not st.session_state['all_ages_checkbox_' + self.plot_id]:
             st.sidebar.slider(f"Age Range", min_value=int(self.df['age'].min()), max_value=int(self.df['age'].max()), value=(int(self.df['age'].min()), int(self.df['age'].max())), key='age_range_slider_' + self.plot_id)
-            st.sidebar.selectbox(f"Seleccionar Rango Etario", ['Todos', 'Jóvenes', 'Adultos', 'Tercera Edad'], key='age_category_selectbox_' + self.plot_id)
+            st.sidebar.selectbox(f"Seleccionar Rango Etario", ['Todos', 'A', 'B', 'C', 'D'], key='age_category_selectbox_' + self.plot_id)
         
         st.sidebar.checkbox("Configurar Rangos Etarios", key='define_age_category_' + self.plot_id )
         if not st.session_state['define_age_category_'+ self.plot_id] :
-            st.sidebar.number_input("Min Age for Jóvenes", min_value=0, max_value=100 ,value = 18, key='age_joven_min_'+ self.plot_id)
-            st.sidebar.number_input("Min Age for Adultos", min_value=0, max_value=100,value = 30, key='age_adult_min_'+ self.plot_id)
-            st.sidebar.number_input("Min Age for Tercera Edad", min_value=0, max_value=100,value = 60,  key='age_tercera_edad_min_'+ self.plot_id)
-        
+            st.sidebar.number_input("Edad mínimia para A", min_value=0, max_value=100 ,value = 18, key='age_a_min_'+ self.plot_id)
+            st.sidebar.number_input("Edad mínimia para B", min_value=0, max_value=100,value = 30, key='age_b_min_'+ self.plot_id)
+            st.sidebar.number_input("Edad mínimia para C", min_value=0, max_value=100,value = 60,  key='age_c_min_'+ self.plot_id)
+            st.sidebar.number_input("Edad mínimia para D", min_value=0, max_value=100,value = 80,  key='age_d_min_'+ self.plot_id)
+       
         st.sidebar.checkbox("Mostrar datos", key='datos_' + self.plot_id)
         st.sidebar.checkbox("Filtrar por usuarios", key='filtrar_usuarios_checkbox' + self.plot_id )
         if not st.session_state['filtrar_usuarios_checkbox' + self.plot_id]:
@@ -398,16 +415,20 @@ class Filters:
         return df.loc[final_indices].reset_index(drop=True)
 
 
-    def categorize_age(self, df, age_adult_min, age_tercera_edad_min):
+    def categorize_age(self, df, age_b_min, age_c_min, age_d_min):
         def age_category(age):
-            if age < age_adult_min:
-                return 'Jóvenes'
-            elif age < age_tercera_edad_min:
-                return 'Adultos'
+            if age < age_b_min:
+                return 'A'  # Youngest
+            elif age < age_c_min:
+                return 'B'
+            elif age < age_d_min:
+                return 'C'
             else:
-                return 'Tercera Edad'
+                return 'D'  # Oldest
+
         df['age_category'] = df['age'].apply(age_category)
         return df
+
     
     def users(self, df, user_id=None):
         if user_id is not None:
@@ -463,12 +484,31 @@ class Filters:
             self.result_antes = self.select_age_category(self.result_antes, st.session_state[f'age_category_selectbox_{self.plot_id}'])
             self.result_despues = self.select_age_category(self.result_despues, st.session_state[f'age_category_selectbox_{self.plot_id}'])
 
-        if  st.session_state['define_age_category_' + self.plot_id ] == False:  
-            if st.session_state['age_joven_min_' + self.plot_id] or st.session_state['age_adult_min_' + self.plot_id] or st.session_state['age_tercera_edad_min_' + self.plot_id]:  
-                self.result = self.categorize_age(self.result,st.session_state['age_joven_min_' + self.plot_id], st.session_state['age_adult_min_' + self.plot_id])
-                self.result_antes = self.categorize_age(self.result_antes,st.session_state['age_joven_min_' + self.plot_id], st.session_state['age_adult_min_' + self.plot_id])
-                self.result_despues = self.categorize_age(self.result_despues,st.session_state['age_joven_min_' + self.plot_id], st.session_state['age_adult_min_' + self.plot_id])
-        
+        if not st.session_state['define_age_category_' + self.plot_id]:  
+            if (
+                st.session_state['age_b_min_' + self.plot_id] or 
+                st.session_state['age_c_min_' + self.plot_id] or 
+                st.session_state['age_d_min_' + self.plot_id]
+            ):  
+                self.result = self.categorize_age(
+                    self.result,
+                    st.session_state['age_b_min_' + self.plot_id],
+                    st.session_state['age_c_min_' + self.plot_id],
+                    st.session_state['age_d_min_' + self.plot_id]
+                )
+                self.result_antes = self.categorize_age(
+                    self.result_antes,
+                    st.session_state['age_b_min_' + self.plot_id],
+                    st.session_state['age_c_min_' + self.plot_id],
+                    st.session_state['age_d_min_' + self.plot_id]
+                )
+                self.result_despues = self.categorize_age(
+                    self.result_despues,
+                    st.session_state['age_b_min_' + self.plot_id],
+                    st.session_state['age_c_min_' + self.plot_id],
+                    st.session_state['age_d_min_' + self.plot_id]
+                )
+
         if  st.session_state['filtrar_usuarios_checkbox' + self.plot_id ] == False: 
             if 'filtrar_usuarios_texto' + self.plot_id in st.session_state and st.session_state['filtrar_usuarios_texto' + self.plot_id]:
                 self.result = self.users(self.result, st.session_state['filtrar_usuarios_texto' + self.plot_id])
@@ -491,7 +531,7 @@ class PlotGenerator:
         self.plot_id = plot_id
         self.count = None
         self.bins = None
-        self.color = custom_colors['Blue']
+        self.color = custom_colors['cat_todos']
         self.color_pie = blue
         self.x = None
         self.y = None
@@ -513,63 +553,74 @@ class PlotGenerator:
 
         if st.session_state['all_genders_checkbox_' + self.plot_id] and st.session_state['all_ages_checkbox_' + self.plot_id]:
             self.color_pie = blue
-            self.color = custom_colors['Blue']
+            self.color = custom_colors['cat_todos']
         
         elif not st.session_state['all_genders_checkbox_' + self.plot_id] and st.session_state['all_ages_checkbox_' + self.plot_id]:
             if gender == 0:
                 self.color_pie = blue_0
-                self.color = custom_colors['Blue_0']
+                self.color = custom_colors['cat_todos_0']
             elif gender == 1:
                 self.color_pie = blue_1
-                self.color = custom_colors['Blue_1']
+                self.color = custom_colors['cat_todos_1']
 
         elif not st.session_state['all_genders_checkbox_' + self.plot_id] and not st.session_state['all_ages_checkbox_' + self.plot_id]:
             
             if age_category == 'Todos':
                 if gender == 0:
-                    self.color = custom_colors['Blue_0']
+                    self.color = custom_colors['cat_todos_0']
                     self.color_pie = blue_0
                 elif gender == 1:
-                    self.color = custom_colors['Blue_1']
+                    self.color = custom_colors['cat_todos_1']
                     self.color_pie = blue_1
             
-            elif age_category == 'Jóvenes':
+            elif age_category == 'A':
                 if gender == 0:
-                    self.color = custom_colors['Green_Jóvenes_0']
+                    self.color = custom_colors['cat_A_0']
                     self.color_pie = green_0
                 elif gender == 1:
-                    self.color = custom_colors['Green_Jóvenes_1']
+                    self.color = custom_colors['cat_A_1']
                     self.color_pie = green_1
 
-            elif age_category == 'Adultos':
+            elif age_category == 'B':
                 if gender == 0:
-                    self.color = custom_colors['Yellow_Adultos_0']
+                    self.color = custom_colors['cat_B_0']
                     self.color_pie = yellow_0
                 elif gender == 1:
-                    self.color = custom_colors['Yellow_Adultos_1']
+                    self.color = custom_colors['cat_B_1']
                     self.color_pie = yellow_1
 
-            elif age_category == 'Tercera Edad':
+            elif age_category == 'C':
                 if gender == 0:
-                    self.color = custom_colors['Orange_TerceraEdad_0']
+                    self.color = custom_colors['cat_C_0']
                     self.color_pie = orange_0
                 elif gender == 1:
-                    self.color = custom_colors['Orange_TerceraEdad_1']
+                    self.color = custom_colors['cat_C_1']
                     self.color_pie = orange_1
+            
+            elif age_category == 'D':
+                if gender == 0:
+                    self.color = custom_colors['cat_D_0']
+                    self.color_pie = red_0
+                elif gender == 1:
+                    self.color = custom_colors['cat_D_1']
+                    self.color_pie = red_1
 
         elif st.session_state['all_genders_checkbox_' + self.plot_id] and not st.session_state['all_ages_checkbox_' + self.plot_id]:
             if age_category == 'Todos':
-                    self.color = custom_colors['Blue']
+                    self.color = custom_colors['cat_todos']
                     self.color_pie = blue
-            elif age_category == 'Jóvenes':
-                    self.color = custom_colors['Green_Jóvenes_0']
+            elif age_category == 'A':
+                    self.color = custom_colors['cat_A_0']
                     self.color_pie = green
-            elif age_category == 'Adultos':
-                    self.color = custom_colors['Yellow_Adultos']
+            elif age_category == 'B':
+                    self.color = custom_colors['cat_B']
                     self.color_pie = yellow
-            elif age_category == 'Tercera Edad':
-                    self.color = custom_colors['Orange_TerceraEdad']
+            elif age_category == 'C':
+                    self.color = custom_colors['cat_C']
                     self.color_pie = orange
+            elif age_category == 'D':
+                    self.color = custom_colors['cat_D']
+                    self.color_pie = reds
                     
     def choose_plot(self):
         if st.session_state[f'plot_{self.plot_id}'] == 'Fecha de recepción de datos':
@@ -975,11 +1026,11 @@ class PlotGenerator:
         fig, ax = plt.subplots(figsize=(8, 6))
         if not st.session_state['all_genders_checkbox_' + self.plot_id]:
             if st.session_state['selected_gender_' + self.plot_id] == 0:
-                colors = [ custom_colors['Yellow_Adultos_0'], custom_colors['Orange_TerceraEdad_0'], custom_colors['Green_Jóvenes_0']]
+                colors = [ custom_colors['cat_B_0'], custom_colors['cat_C_0'], custom_colors['cat_A_0'], custom_colors['cat_D_0']]
             elif st.session_state['selected_gender_' + self.plot_id] == 1:
-                colors = [ custom_colors['Yellow_Adultos_1'], custom_colors['Orange_TerceraEdad_1'], custom_colors['Green_Jóvenes_1']]
+                colors = [ custom_colors['cat_B_1'], custom_colors['cat_C_1'], custom_colors['cat_A_1'], custom_colors['cat_D_1']]
         else:
-            colors = [ custom_colors['Yellow_Adultos'], custom_colors['Orange_TerceraEdad'], custom_colors['Green_Jóvenes']]
+            colors = [ custom_colors['cat_B'], custom_colors['cat_C'], custom_colors['cat_A'], custom_colors['cat_D']]
         value_counts = self.df[self.count].value_counts()
         ax.pie(value_counts, labels=value_counts.index, autopct='%1.1f%%', startangle=90, colors=colors )
         ax.set_title('', fontsize=15)
