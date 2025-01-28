@@ -727,7 +727,7 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Otra actividad habitual no fotica":
             st.title("Otra actividad habitual no fotica")
-            st.subheader('Hacés alguna otra actividad al menos 3 veces por semana en horarios fijos??')
+            st.subheader('¿Hacés alguna otra actividad al menos 3 veces por semana en horarios fijos?')
             st.subheader('0: No')
             st.subheader('1: Sí')
         
@@ -969,6 +969,7 @@ class PlotGenerator:
             self.fontsize2 = 6
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Desviación Jet Lag Social':
+            st.title('Desviación Jet Lag Social')
             #Scatter Plot
             self.colors()
             self.y = 'user_id'
@@ -999,6 +1000,7 @@ class PlotGenerator:
             self.scatter_plot()
 
         elif st.session_state[f'plot_{self.plot_id}'] == 'Hora de inicio de sueño no laboral centrada':
+            st.title('Hora de inicio de sueño no laboral centrada')
             self.bins=24
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
