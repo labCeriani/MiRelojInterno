@@ -1193,16 +1193,16 @@ def main():
 
     # Login Form
     if not st.session_state.logged_in:
-        st.title("Login to Access the Application")
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
+        st.title("Inicia sesión para acceder a la aplicación")
+        username = st.text_input("Usuario")
+        password = st.text_input("Contraseña", type="password")
         
-        if st.button("Login"):
+        if st.button("Iniciar sesión"):
             if auth.validate_user(username, password):
                 st.session_state.logged_in = True  # Update session state
-                st.success("Logged in successfully!")
+                st.success("Iniciado correctamente!")
             else:
-                st.error("Invalid username or password")
+                st.error("Usuario o contraseña inválidos")
     else:
         # If logged in, show the rest of the application
         st.title("Cargar base de datos")
