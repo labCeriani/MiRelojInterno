@@ -1200,7 +1200,7 @@ def main():
         if st.button("Iniciar sesión"):
             if auth.validate_user(username, password):
                 st.session_state.logged_in = True  # Update session state
-                st.success("Iniciado correctamente!")
+                st.rerun() 
             else:
                 st.error("Usuario o contraseña inválidos")
     else:
@@ -1220,7 +1220,7 @@ def main():
                 # Load the data using the DataLoader
                 df_all = data_loader.load_data(uploaded_before, uploaded_after, 'Geo.csv')
 
-            st.success("Data loaded successfully!")
+            st.success("Base de datos cargada correctamente!")
 
         # If df_all is still None, warn the user and stop execution
         if df_all is None:
