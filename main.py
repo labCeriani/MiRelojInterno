@@ -750,8 +750,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Horario de acostarse - Hábiles":
-            st.title("Horario de acostarse - Días Hábiles")
-            st.subheader('En días hábiles, Días en que trabajás y/o estudias')
+            st.title("Horario de acostarse en días Hábiles")
             st.subheader('¿A qué hora te acostás?')
             st.subheader('Los diás hábiles me acuesto: HH:MM AM/PM')
             self.bins = 24
@@ -763,10 +762,8 @@ class PlotGenerator:
             self.histo_plot()
             #self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Horario decidir dormir - Hábiles':
-            st.title('Horario decidir dormir - Días Hábiles')
-            st.subheader("Horario decidir dormir - Días Hábiles")
-            st.subheader('En días hábiles (Días en que trabajás y/o estudias, ¿A qué hora decidís dormirte?')
-            st.subheader('Una vez que me acosté, decido dormirme: Respuesta en formato HH:MM AM/PM')
+            st.title('Horario decidir dormir en días hábiles')
+            st.subheader('Una vez que me acosté, decido dormirme: HH:MM AM/PM')
 
             self.bins = 24
             self.colors()
@@ -778,7 +775,6 @@ class PlotGenerator:
         
         elif st.session_state[f'plot_{self.plot_id}'] == 'Minutos dormir - Hábiles':
             st.title('Minutos dormir en días Hábiles')
-            st.subheader('En días hábiles, Días en que trabajás y/o estudias')
             st.subheader('¿Cuántos minutos tardaás en dormirte?')
             st.subheader('Tardo ... minutos en dormirme: Entero')
             self.bins = 24
@@ -790,7 +786,6 @@ class PlotGenerator:
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Hora despertar - Hábiles':
             st.title('Hora despertar en días Hábiles')
-            st.subheader('En días hábiles, días en que trabajás y/o estudias')
             st.subheader('¿A qué hora te despertás?')
             st.subheader('Me despierto: HH:MM AM/PM')
             self.bins = 24
@@ -803,7 +798,6 @@ class PlotGenerator:
         
         elif st.session_state[f'plot_{self.plot_id}'] == 'Alarma - Hábiles':
             st.title('Alarma en días Hábiles')
-            st.subheader('En días hábiles, días en que trabajás y/o estudias')
             st.subheader('¿Usas alarma o despertador?')
             st.subheader('0: No (Chequear si el 0 es NO)')
             st.subheader('1: Si')
@@ -815,8 +809,7 @@ class PlotGenerator:
             self.count_plot()
             #self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Siesta habitual integrada':
-            st.header('Siesta en Días Hábiles')
-            st.subheader('En días hábiles, días en que trabajás y/o estudias')
+            st.header('Siesta en días hábiles')
             st.write('¿En general, dormís siesta en tus diás hábiles?')
             st.subheader('0: No')
             st.subheader('1: Sí, menos de 30 minutos')
@@ -830,7 +823,6 @@ class PlotGenerator:
            # #self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Calidad de sueño - Hábiles':
             st.header('Calidad de sueño en días hábiles')
-            st.subheader('En días hábiles, Días en que trabajás y/o estudias')
             st.subheader('1: Muy mal')
             st.subheader('10: Excelente')
             self.colors()
@@ -842,9 +834,8 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Horario de acostarse - Libres':
             st.title('Horario de acostarse en días libres')
-            st.subheader('En días libres, días en que no trabajás ni estudiás')
             st.subheader('¿A qué hora te acostás?')
-            st.subheader('Los días libres me acuesto a las: (respuesta en formato HH:MM(AM/PM))')
+            st.subheader('Los días libres me acuesto a las: HH:MM AM/PM')
             
             self.colors()
             self.bins = 24
@@ -855,9 +846,8 @@ class PlotGenerator:
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Horario decidir dormir - Libres':
             st.title('Horario de decidir dormir en días libres')
-            st.subheader('En días libres, días en que no trabajás ni estudiás')
             st.subheader('¿A qué hora decidis dormirte?')
-            st.subheader('Una vez que me acosté, decido dormirme: HH:MM (AM/PM)')
+            st.subheader('Una vez que me acosté, decido dormirme: HH:MM AM/PM')
             self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -867,7 +857,6 @@ class PlotGenerator:
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Minutos dormir - Libres':
             st.title('Minutos en dormir en días libres')
-            st.subheader('En días libres, días en que no trabajás ni estudiás')
             st.subheader('¿Cuántos minutos tardás en dormirte?')
             st.subheader('Tardo ... minutos en dormirme')
             
@@ -880,8 +869,7 @@ class PlotGenerator:
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Hora despertar - Libres':
             st.title('Hora de despertar en días libres')
-            st.subheader('En días libres, días en que no trabajás ni estudiás')
-            st.subheader('¿A qué hora te despertás')
+            st.subheader('¿A qué hora te despertás?')
             st.subheader('Me despierto: HH:MM (AM/PM)')
             self.colors()
             self.bins = 24
@@ -892,7 +880,6 @@ class PlotGenerator:
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Alarma - Libres':
             st.title('Alarma en días libres')
-            st.subheader('En días libres, días en que no trabajás ni estudiás')
             st.subheader('¿Usás alarma o despertador?')
             st.subheader('0: No')
             st.subheader('1: Si')
