@@ -100,7 +100,6 @@ age_categories = ['A', 'B', 'C', 'D']
 category_colors = {'A': custom_colors['cat_A'],'B': custom_colors['cat_B'],'C': custom_colors['cat_C'], 'D': custom_colors['cat_D']}
 category_colors_gender = {'A': [custom_colors['cat_A_0'], custom_colors['cat_A_1']],'B': [custom_colors['cat_B_0'], custom_colors['cat_B_1']],'C': [custom_colors['cat_C_0'], custom_colors['cat_C_1']], 'D': [custom_colors['cat_D_0'], custom_colors['cat_D_1']]}
 
-
 class Authentication:
     def __init__(self):
         self.credentials = {
