@@ -648,8 +648,8 @@ class PlotGenerator:
             self.histo_plot()
             self.count = 'age_category'
             self.title = 'Porcentaje de rangos etarios'
-
             self.pie_edad()
+        
         elif st.session_state[f'plot_{self.plot_id}'] == "Provincia":
             st.title("Distribución de localidades") 
             self.map()
@@ -673,8 +673,9 @@ class PlotGenerator:
             self.y_label = 'Frecuencia'
             self.count_plot()
             ##self.pie_plot()
+            
         elif st.session_state[f'plot_{self.plot_id}'] == 'Exposición luz natural':
-            st.title('Exposición luz natural')
+            st.title('Exposición a la luz natural')
             st.subheader('¿Antes de las 15:00 Estás en espacios descubiertos?')
             st.subheader('0: No')
             st.subheader('1: Sí, al menos 3 días a la semana')
@@ -686,7 +687,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Exposición luz artificial":
-            st.title("Exposición luz artificial")
+            st.title("Exposición a la luz artificial")
             st.subheader('¿Antes de las 15:00 ¿necesitás encender la luz en el ambiente en el que más estás?')
             st.subheader('0: sí, casi siempre')
             st.subheader('1: No, casi nunca')
@@ -776,7 +777,7 @@ class PlotGenerator:
             self.histo_plot()
         
         elif st.session_state[f'plot_{self.plot_id}'] == 'Minutos dormir - Hábiles':
-            st.title('Minutos dormir - Días Hábiles')
+            st.title('Minutos dormir en días Hábiles')
             st.subheader('En días hábiles, Días en que trabajás y/o estudias')
             st.subheader('¿Cuántos minutos tardaás en dormirte?')
             st.subheader('Tardo ... minutos en dormirme: Entero')
@@ -788,8 +789,8 @@ class PlotGenerator:
             self.fontsize2 = 6
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Hora despertar - Hábiles':
-            st.title('Hora despertar - Días Hábiles')
-            st.subheader('En días hábiles, Días en que trabajás y/o estudias')
+            st.title('Hora despertar en días Hábiles')
+            st.subheader('En días hábiles, días en que trabajás y/o estudias')
             st.subheader('¿A qué hora te despertás?')
             st.subheader('Me despierto: HH:MM AM/PM')
             self.bins = 24
@@ -801,11 +802,11 @@ class PlotGenerator:
             self.histo_plot()
         
         elif st.session_state[f'plot_{self.plot_id}'] == 'Alarma - Hábiles':
-            st.write('En días hábiles')
-            st.write('Días en que trabajás y/o estudias')
-            st.write('¿Usas alarma o despertador?')
-            st.write('0: Si???')
-            st.write('1: No??')
+            st.title('Alarma en días Hábiles')
+            st.subheader('En días hábiles, días en que trabajás y/o estudias')
+            st.subheader('¿Usas alarma o despertador?')
+            st.subheader('0: No (Chequear si el 0 es NO)')
+            st.subheader('1: Si')
             
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -814,11 +815,13 @@ class PlotGenerator:
             self.count_plot()
             #self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Siesta habitual integrada':
-            st.write('En días hábiles')
-            st.write('Días en que trabajás y/o estudias')
-            st.write('¿Usas alarma o despertador?')
-            st.write('0: Si???')
-            st.write('1: No??')
+            st.header('Siesta en Días Hábiles')
+            st.subheader('En días hábiles, días en que trabajás y/o estudias')
+            st.write('¿En general, dormís siesta en tus diás hábiles?')
+            st.subheader('0: No')
+            st.subheader('1: Sí, menos de 30 minutos')
+            st.subheader('2: Sí, más de 30 minutos')
+            st.write('Chequear si estan bien las respuestas')
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -826,6 +829,10 @@ class PlotGenerator:
             self.count_plot()
            # #self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Calidad de sueño - Hábiles':
+            st.header('Calidad de sueño en días hábiles')
+            st.subheader('En días hábiles, Días en que trabajás y/o estudias')
+            st.subheader('1: Muy mal')
+            st.subheader('10: Excelente')
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -834,6 +841,11 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Horario de acostarse - Libres':
+            st.title('Horario de acostarse en días libres')
+            st.subheader('En días libres, días en que no trabajás ni estudiás')
+            st.subheader('¿A qué hora te acostás?')
+            st.subheader('Los días libres me acuesto a las: (respuesta en formato HH:MM(AM/PM))')
+            
             self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -842,6 +854,10 @@ class PlotGenerator:
             self.fontsize2 = 6
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Horario decidir dormir - Libres':
+            st.title('Horario de decidir dormir en días libres')
+            st.subheader('En días libres, días en que no trabajás ni estudiás')
+            st.subheader('¿A qué hora decidis dormirte?')
+            st.subheader('Una vez que me acosté, decido dormirme: HH:MM (AM/PM)')
             self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -850,6 +866,11 @@ class PlotGenerator:
             self.fontsize2 = 6
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Minutos dormir - Libres':
+            st.title('Minutos en dormir en días libres')
+            st.subheader('En días libres, días en que no trabajás ni estudiás')
+            st.subheader('¿Cuántos minutos tardás en dormirte?')
+            st.subheader('Tardo ... minutos en dormirme')
+            
             self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -858,6 +879,10 @@ class PlotGenerator:
             self.fontsize2 = 6
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Hora despertar - Libres':
+            st.title('Hora de despertar en días libres')
+            st.subheader('En días libres, días en que no trabajás ni estudiás')
+            st.subheader('¿A qué hora te despertás')
+            st.subheader('Me despierto: HH:MM (AM/PM)')
             self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -866,6 +891,12 @@ class PlotGenerator:
             self.fontsize2 = 6
             self.histo_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Alarma - Libres':
+            st.title('Alarma en días libres')
+            st.subheader('En días libres, días en que no trabajás ni estudiás')
+            st.subheader('¿Usás alarma o despertador?')
+            st.subheader('0: No')
+            st.subheader('1: Si')
+            
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -873,6 +904,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Alarma no fotica (sí/no)":
+            st.title("Recomendación - Alarma no fotica (sí/no)")
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -880,6 +912,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Luz natural (8-15)":
+            st.title("Recomendación - Luz natural (8-15)")
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -887,6 +920,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Luz artificial (8-15)":
+            st.title("Recomendación - Luz artificial (8-15)")
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -894,6 +928,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Estudios no foticos integrados":
+            st.title('"Recomendación - Estudios no foticos integrados"')
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -901,6 +936,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Trabajo no fotico integrado":
+            st.title("Recomendación - Trabajo no fotico integrado")
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -908,6 +944,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Otra actividad habitual no fotica (sí/no)":
+            st.title('"Recomendación - Otra actividad habitual no fotica (sí/no)"')
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -915,6 +952,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Cena no fotica integrada":
+            st.title("Recomendación - Cena no fotica integrada")
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -922,6 +960,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Siesta habitual integrada":
+            st.title("Recomendación - Siesta habitual integrada")
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -930,6 +969,7 @@ class PlotGenerator:
             ##self.pie_plot()
 
         elif st.session_state[f'plot_{self.plot_id}'] == "MEQ Puntaje total":
+            st.title("MEQ Puntaje total")
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -940,6 +980,7 @@ class PlotGenerator:
             self.count_plot()
             self.rotation = 45
         elif st.session_state[f'plot_{self.plot_id}'] == 'MSFsc':
+            st.title('Mid-Sleep on Free Days, Sleep-Corrected')
             self.colors()
             self.x = 'MEQ_score_total_tipo'
             self.y_label = 'Frecuencia'
@@ -961,6 +1002,7 @@ class PlotGenerator:
             self.bar_plot()
             
         elif st.session_state[f'plot_{self.plot_id}'] == 'Duración Del Sueño - Hábiles':
+            st.title('Duración Del Sueño - Hábiles')
             self.bins = 24
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
