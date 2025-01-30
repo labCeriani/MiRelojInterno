@@ -132,27 +132,56 @@ class DatabaseUploader:
 class InstructivoApp:
     def display(self):
         st.title("Instructivo para usar la Aplicación")
+        st.markdown("[Link para sugerir cambios](https://docs.google.com/document/d/1oy7gBG45nn5Netl34mc3leJ3IgIqcNyHN-72geDS6W4/edit?usp=drive_link)")
+
         st.write("""
             Bienvenido a la aplicación de análisis de datos. Aquí te explicamos cómo usar cada sección:
 
             1. **Carga de Datos**: 
-               - Sube dos archivos CSV, uno con datos previos al evento y otro con datos posteriores.
+               - Sube dos archivos CSV, uno con datos previos al 'Crash' y otro con los datos posteriores en formato CSV.
             
-            2. **Configuración de Filtros**:
-               - Desde la barra lateral, puedes configurar los filtros por fechas, edades, géneros, recomendaciones, etc.
-               - Puedes seleccionar entre diferentes tipos de gráficos.
+            2. **Seleccione la cantidad de gráficos que desea ver**:
+               - Define la cantidad de gráficos que podrás ver en simultáneo.
+               - Para cada gráfico se puede cambiar lo que se desea ver y los filtros.
 
             3. **Gráficos**:
-               - Los gráficos se generarán automáticamente según los datos y filtros seleccionados.
-               - Puedes ajustar la cantidad de gráficos a mostrar, el tipo de gráfico y el contenido.
+                - Selecciona el gráfico que deseas ver.
+                - **Entradas - Usuarios**:
+                    - **Entradas**: Muestra todos los ID que usaron la aplicación; pueden aparecer ID repetidos, ya que un usuario puede usar muchas veces la aplicación.
+                    - **Usuarios**: Muestra los ID únicos, conservando solo una entrada por cada usuario que haya usado la aplicación más de una vez. Por defecto, toma la última entrada.
 
-            4. **Exportación de Resultados**:
-               - Si es necesario, puedes descargar los datos filtrados desde la sección de Datos.
+                - **Recomendaciones**:
+                    - **Siguieron recomendaciones**:
+                        - **Sí**: Usuarios que siguieron las recomendaciones.
+                        - **No**: Usuarios que no siguieron las recomendaciones.
+                        - **Ambas**: Muestra tanto los usuarios que siguieron las recomendaciones como los que no.
 
-            5. **Instrucciones adicionales**:
-               - Asegúrate de cargar archivos en el formato correcto.
-               - Si encuentras algún error, revisa que los datos cumplan con el formato esperado.
+                    - **Diferencia de días mínimo**: La cantidad mínima de días entre entradas de un mismo usuario.
+                    - **Diferencia de días máximo**: La cantidad máxima de días entre entradas de un mismo usuario.
+
+                    - **Antes - Después**:
+                        - **Antes**: La primera entrada de un usuario que usó más de una vez la aplicación.
+                        - **Después**: La segunda entrada de un usuario que usó más de una vez la aplicación.
+                        - **Ambas**: Muestra tanto la primera entrada como la segunda entrada.
+                        - **Antes vs Después**: Muestra en los gráficos, de manera superpuesta, la diferencia entre las entradas antes y después.
+
+                - **Fechas**: Filtra por intervalo de fechas de las entradas de datos.
+                - **Género**: Filtra por género.
+                - **Edades**:
+                    - Permite seleccionar el rango de edades a visualizar.
+                    - Permite seleccionar el rango etario a visualizar.
+
+                - **Configurar rango etario**:
+                    - Configura los grupos de rango etario, hasta un máximo de 4 grupos.
+
+                - **Mostrar datos**:
+                    - Muestra el dataset con los filtros seleccionados.
+
+                - **Filtrar por usuarios**:
+                    - Permite filtrar usuarios por ID y seleccionar la cantidad de entradas que se desean ver de ese usuario.
         """)
+
+
 class DataLoader: 
     def __init__(self):
         self.df = pd.DataFrame()
