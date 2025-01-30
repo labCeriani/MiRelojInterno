@@ -63,6 +63,7 @@ data_dictionary = {
     'Fecha de recepción de datos': 'date_recepcion_data',
     'Edad': 'age',
     'Provincia': 'provincia',
+    'Géneros': 'genero',
     'Percepción de cambio': 'RECOMENDACIONES_AJUSTE',
     'Exposición luz natural': 'FOTICO_luz_natural_8_15_integrada',
     'Exposición luz artificial': 'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',
@@ -90,7 +91,7 @@ data_dictionary = {
     'Recomendación - Otra actividad habitual no fotica (sí/no)': 'rec_NOFOTICO_otra_actividad_habitual_si_no',
     'Recomendación - Cena no fotica integrada': 'rec_NOFOTICO_cena_integrada',
     'Recomendación - Siesta habitual integrada': 'rec_HAB_siesta_integrada',
-    'MEQ Puntaje total': 'MEQ_score_total_tipo',
+    'MEQ Puntaje total': 'MEQ_score_total',
     'MSFsc': 'MSFsc',
     'Duración Del Sueño - Hábiles': 'HAB_SDw',
     'Desviación Jet Lag Social': 'SJL',
@@ -200,7 +201,6 @@ class DataLoader:
        # columns_to_fix = ['rec_NOFOTICO_HAB_alarma_si_no','rec_FOTICO_luz_natural_8_15_integrada','rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada','rec_NOFOTICO_estudios_integrada','rec_NOFOTICO_trabajo_integrada','rec_NOFOTICO_otra_actividad_habitual_si_no','rec_NOFOTICO_cena_integrada','rec_HAB_siesta_integrada']
        #self.df[columns_to_fix] = self.df[columns_to_fix].fillna('None').astype(str)
         
-        self.df['MEQ_score_total_tipo'] = self.df['MEQ_score_total'].apply(self.define_chronotype)
         
         time = pd.to_datetime(self.df['HAB_Hora_acostar'], format='%H:%M')
         self.df['HAB_Hora_acostar'] = time.dt.hour + time.dt.minute / 60
@@ -240,19 +240,7 @@ class DataLoader:
         
         return self.df
     
-    def define_chronotype(self, score):
-        if 16 <= score <= 30:
-            return 'Vespertino Ext'
-        elif 31 <= score <= 41:
-            return 'Vespertino Mod'
-        elif 42 <= score <= 58:
-            return 'Intermedio'
-        elif 59 <= score <= 69:
-            return 'Matutino Mod'
-        elif 70 <= score <= 86:
-            return 'Matutino Ext'
-        else:
-            return 'Fuera de Rango'
+
    
     def categorize_age(self, df, age_b_min, age_c_min, age_d_min):
         def age_category(age):
@@ -701,6 +689,16 @@ class PlotGenerator:
             self.count = 'age_category'
             self.title = 'Porcentaje de rangos etarios'
             self.pie_edad()
+        elif st.session_state[f'plot_{self.plot_id}'] == 'Géneros':
+            st.title("Generos") 
+            self.colors()
+            self.bins = 2
+            self.count = 'genero'
+            self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
+            self.x_label= 'Generos'
+            self.y_label = 'Frecuencia'
+            self.count_plot()
+            
         
         elif st.session_state[f'plot_{self.plot_id}'] == "Provincia":
             st.title("Distribución de localidades") 
@@ -1016,7 +1014,8 @@ class PlotGenerator:
             self.rotation = 45
             ##self.pie_plot()
             self.fontsize2 = 6
-            self.count_plot()
+            self.bins = 20
+            self.histo_plot()
             self.rotation = 45
         elif st.session_state[f'plot_{self.plot_id}'] == 'MSFsc':
             st.title('Mid-Sleep on Free Days, Sleep-Corrected')
@@ -1041,7 +1040,7 @@ class PlotGenerator:
             self.bar_plot()
             
         elif st.session_state[f'plot_{self.plot_id}'] == 'Duración Del Sueño - Hábiles':
-            st.title('Duración Del Sueño - Hábiles')
+            st.title('Duración del sueño en días hábiles')
             self.bins = 24
             self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -1101,7 +1100,6 @@ class PlotGenerator:
         if st.session_state['ambas_antes_despues_' + self.plot_id] != 'Antes vs Después':
             value_counts = self.df[self.pie].value_counts() 
             ax.pie(value_counts, labels=value_counts.index, autopct='%1.1f%%', startangle=90, colors=self.color_pie,labeldistance=1.1, pctdistance=0.5)
-            ax.set_title('Distribución General', fontsize=15)
             st.pyplot(fig)
         else:
             col1, col2 = st.columns(2)
@@ -1121,6 +1119,7 @@ class PlotGenerator:
                 st.pyplot(fig)
 
     def pie_edad(self):
+        
         fig, ax = plt.subplots(figsize=(8, 6))
         if not st.session_state['all_genders_checkbox_' + self.plot_id]:
             if st.session_state['selected_gender_' + self.plot_id] == 0:
@@ -1131,7 +1130,7 @@ class PlotGenerator:
             colors = [ custom_colors['cat_B'], custom_colors['cat_C'], custom_colors['cat_A'], custom_colors['cat_D']]
         value_counts = self.df[self.count].value_counts()
         ax.pie(value_counts, labels=value_counts.index, autopct='%1.1f%%', startangle=90, colors=colors )
-        ax.set_title('', fontsize=15)
+        ax.set_title('Rangos Etarios', fontsize=15)
         st.pyplot(fig)
 
     def lineplot(self):
@@ -1281,7 +1280,6 @@ def main():
 
         # Graphs tab
         with tabs[2]:
-            st.title("Generación de Gráficos")
             if df_all is None:
                 st.header("Primero cargue la base de datos")
                 return
