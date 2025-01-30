@@ -1226,7 +1226,7 @@ def main():
             st.warning("Please upload both CSV files to proceed.")
             return
 
-        num_plots = st.sidebar.slider("Select the number of plots", min_value=1, max_value=9, value=1, step=1)
+        num_plots = st.sidebar.slider("Seleccione la cantidad de gráficos que desea ver", min_value=1, max_value=9, value=1, step=1)
         if num_plots == 1:
             plots_per_row = 1
         elif num_plots == 2:
@@ -1240,7 +1240,7 @@ def main():
             for col in columns:
                 if plot_count < num_plots:
                     plot_id = f'plot_{plot_count + 1}'  
-                    st.sidebar.header(f"Plot - {plot_count + 1}")  
+                    st.sidebar.header(f"Gráfico - {plot_count + 1}")  
                     with st.spinner("Cargando datos y aplicando filtros, por favor espere..."):
                         streamlit_app = StreamLit(df_all, plot_id)
                         streamlit_app.sidebar()  
