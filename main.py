@@ -182,7 +182,6 @@ class InstructivoApp:
                     - Permite filtrar usuarios por ID y seleccionar la cantidad de entradas que se desean ver de ese usuario.
         """)
 
-
 class DataLoader: 
     def __init__(self):
         self.df = pd.DataFrame()
@@ -240,7 +239,6 @@ class DataLoader:
         
         return self.df
     
-
    
     def categorize_age(self, df, age_b_min, age_c_min, age_d_min):
         def age_category(age):
@@ -1295,41 +1293,149 @@ def main():
                 for col in columns:
                     if plot_count < num_plots:
                         plot_id = f'plot_{plot_count + 1}'  
-                        st.sidebar.header(f"Gráfico - {plot_count + 1}")  
-                        
+                        st.sidebar.header(f"Plot - {plot_count + 1}")  
                         with st.spinner("Cargando datos y aplicando filtros, por favor espere..."):
-                            # Initialize StreamLit and Filters
                             streamlit_app = StreamLit(df_all, plot_id)
                             streamlit_app.sidebar()
                             filters = Filters(df_all, plot_id)
                             filters.choose_filter()
-
-                            # Get filtered data
                             df_filtered = filters.result
                             df_filtered_antes = filters.result_antes
                             df_filtered_despues = filters.result_despues
-
-                            # Prepare combined data for comparison plots
-                            df_filtered_antes['Periodo'] = 'Antes'
-                            df_filtered_despues['Periodo'] = 'Después'
-                            df_combinado = pd.concat([df_filtered_antes, df_filtered_despues], ignore_index=True)
-                            df_combinado.sort_values(by=['user_id', 'date_recepcion_data'], inplace=True)
-
-                            # Display data or plots
-                            with col:
-                                if not st.session_state['datos_' + plot_id]:
+                            column_order =['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'rec_FOTICO_luz_natural_8_15_integrada' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
+                            column_order_combinado = ['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'Periodo' ,'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'rec_FOTICO_luz_natural_8_15_integrada' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
+                            df_all = df_all[column_order]
+                            df_filtered = df_filtered[column_order]
+                
+                            df_all = df_all.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
+                            df_filtered = df_filtered.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
+                            
+                            df_filtered_antes.loc[:, 'Periodo'] = 'Antes'
+                            df_filtered_despues.loc[:, 'Periodo'] = 'Después'
+                            df_filtered_antes = df_filtered_antes.reset_index(drop=True)
+                            df_filtered_despues = df_filtered_despues.reset_index(drop=True)
+                            df_combinado = pd.concat([df_filtered_antes, df_filtered_despues], ignore_index=False)
+                            df_combinado = df_combinado.reset_index(drop=True)
+                            df_combinado = df_combinado[column_order_combinado]
+                            df_combinado = df_combinado.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
+                            with col:  
+                                if st.session_state['datos_' + plot_id] == False:                    
+                                    
                                     st.title('Datos')
-                                    data_to_display = df_combinado if st.session_state['ambas_antes_despues_' + plot_id] == 'Antes vs Después' else df_filtered
-                                    st.write(f'Cantidad: {len(data_to_display)}')
-                                    st.write(data_to_display)
+                                    if st.session_state['ambas_antes_despues_' + plot_id] == 'Antes vs Después':   
+                                        st.write(f'Cantidad : {len(df_combinado)}')  
+                                        st.write(df_combinado)
+                                    else:
+                                        st.write(f'Cantidad : {len(df_filtered)}')  
+                                        st.write(df_filtered)  
+                                plot_generator = PlotGenerator(df_filtered, df_combinado, plot_id) 
+                                plot_generator.choose_plot()  
 
-                                # Generate the plot
-                                plot_generator = PlotGenerator(df_filtered, df_combinado, plot_id)
-                                plot_generator.choose_plot()
-
-                        plot_count += 1  # Move to the next plot
+                            plot_count += 1  
 
 main()
 
 
 #streamlit run '/Users/tomasmendietarios/Library/Mobile Documents/com~apple~CloudDocs/I.T.B.A/MiRelojInterno/main.py'
+
+# """
+# def main():
+#     # Initialize the Authentication
+#     auth = Authentication()
+    
+#     # Check for login session state
+#     if 'logged_in' not in st.session_state:
+#         st.session_state.logged_in = False  # Default to not logged in
+
+#     # Login Form
+#     if not st.session_state.logged_in:
+#         st.title("Inicia sesión para acceder a la aplicación")
+#         username = st.text_input("Usuario")
+#         password = st.text_input("Contraseña", type="password")
+        
+#         if st.button("Iniciar sesión"):
+#             if auth.validate_user(username, password):
+#                 st.session_state.logged_in = True  # Update session state
+#                 st.success("Iniciado correctamente!")
+#             else:
+#                 st.error("Usuario o contraseña inválidos")
+#     else:
+#         # If logged in, show the rest of the application
+#         st.title("Cargar base de datos")
+#         df_all = None  # Initialize df_all as None
+
+#         # Manually upload CSV files using the file uploader
+#         uploaded_before = st.file_uploader("Cargar la base de datos previo al crash en formato CSV")
+#         uploaded_after = st.file_uploader("Cargar la base de datos posterior al crash en formato CSV")
+    
+#         data_loader = DataLoader()
+
+#         # Check if both files are uploaded
+#         if uploaded_before is not None and uploaded_after is not None:
+#             with st.spinner("Loading data..."):
+#                 # Load the data using the DataLoader
+#                 df_all = data_loader.load_data(uploaded_before, uploaded_after, 'Geo.csv')
+
+#             st.success("Data loaded successfully!")
+
+#         # If df_all is still None, warn the user and stop execution
+#         if df_all is None:
+#             st.warning("Please upload both CSV files to proceed.")
+#             return
+
+#         num_plots = st.sidebar.slider("Select the number of plots", min_value=1, max_value=9, value=1, step=1)
+#         if num_plots == 1:
+#             plots_per_row = 1
+#         elif num_plots == 2:
+#             plots_per_row = 2
+#         else: 
+#             plots_per_row = 3
+#         plot_count = 0  
+        
+#         while plot_count < num_plots:
+#             columns = st.columns(plots_per_row)
+#             for col in columns:
+#                 if plot_count < num_plots:
+#                     plot_id = f'plot_{plot_count + 1}'  
+#                     st.sidebar.header(f"Plot - {plot_count + 1}")  
+#                     with st.spinner("Cargando datos y aplicando filtros, por favor espere..."):
+#                         streamlit_app = StreamLit(df_all, plot_id)
+#                         streamlit_app.sidebar()  
+#                         filters = Filters(df_all, plot_id)
+#                         filters.choose_filter()
+#                         df_filtered = filters.result
+#                         df_filtered_antes = filters.result_antes
+#                         df_filtered_despues = filters.result_despues
+#                         column_order = ['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'rec_FOTICO_luz_natural_8_15_integrada' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada', 'MEQ_score_total_tipo', 'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
+#                         column_order_combinado = ['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'Periodo' ,'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'rec_FOTICO_luz_natural_8_15_integrada' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada', 'MEQ_score_total_tipo', 'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
+#                         df_all = df_all[column_order]
+#                         df_filtered = df_filtered[column_order]
+            
+#                         df_all = df_all.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
+#                         df_filtered = df_filtered.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
+                        
+#                         df_filtered_antes.loc[:, 'Periodo'] = 'Antes'
+#                         df_filtered_despues.loc[:, 'Periodo'] = 'Después'
+#                         df_filtered_antes = df_filtered_antes.reset_index(drop=True)
+#                         df_filtered_despues = df_filtered_despues.reset_index(drop=True)
+#                         df_combinado = pd.concat([df_filtered_antes, df_filtered_despues], ignore_index=False)
+#                         df_combinado = df_combinado.reset_index(drop=True)
+#                         df_combinado = df_combinado[column_order_combinado]
+#                         df_combinado = df_combinado.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
+#                         with col:  
+#                             if st.session_state['datos_' + plot_id] == False:                    
+                                
+#                                 st.title('Datos')
+#                                 if st.session_state['ambas_antes_despues_' + plot_id] == 'Antes vs Después':   
+#                                     st.write(f'Cantidad : {len(df_combinado)}')  
+#                                     st.write(df_combinado)
+#                                 else:
+#                                     st.write(f'Cantidad : {len(df_filtered)}')  
+#                                     st.write(df_filtered)  
+#                             plot_generator = PlotGenerator(df_filtered, df_combinado, plot_id) 
+#                             plot_generator.choose_plot()  
+
+#                         plot_count += 1  
+
+# main()
+# """
