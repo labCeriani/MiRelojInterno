@@ -281,7 +281,7 @@ class StreamLit:
 
     def initialize_filters(self):
         if 'datos_' + self.plot_id not in st.session_state:
-            st.session_state['datos_' + self.plot_id] = True
+            st.session_state['datos_' + self.plot_id] = False
         
         if 'selected_gender_' + self.plot_id not in st.session_state:
             st.session_state['selected_gender_' + self.plot_id] = 0
@@ -317,16 +317,16 @@ class StreamLit:
             st.session_state['entradas_usuarios_filter_' + self.plot_id] = 'Entradas'
 
         if 'all_dates_checkbox_' + self.plot_id not in st.session_state:
-            st.session_state['all_dates_checkbox_' + self.plot_id] = True
+            st.session_state['all_dates_checkbox_' + self.plot_id] = False
 
         if 'all_ages_checkbox_' + self.plot_id not in st.session_state:
-            st.session_state['all_ages_checkbox_' + self.plot_id] = True
+            st.session_state['all_ages_checkbox_' + self.plot_id] = False
 
         if 'all_genders_checkbox_' + self.plot_id not in st.session_state:
-            st.session_state['all_genders_checkbox_' + self.plot_id] = True
+            st.session_state['all_genders_checkbox_' + self.plot_id] = False
 
         if 'all_recommendations_checkbox_' + self.plot_id not in st.session_state:
-            st.session_state['all_recommendations_checkbox_' + self.plot_id] = True
+            st.session_state['all_recommendations_checkbox_' + self.plot_id] = False
 
         if 'min_days_diff_input_' + self.plot_id not in st.session_state:
             st.session_state['min_days_diff_input_' + self.plot_id] = 10
@@ -335,60 +335,66 @@ class StreamLit:
             st.session_state['max_days_diff_input_' + self.plot_id] = 30
 
         if 'rango_etario_' + self.plot_id not in st.session_state:
-            st.session_state['rango_etario_' + self.plot_id] = True
+            st.session_state['rango_etario_' + self.plot_id] = False
 
         if 'define_age_category_' + self.plot_id not in st.session_state:
-            st.session_state['define_age_category_' + self.plot_id] = True
+            st.session_state['define_age_category_' + self.plot_id] = False
         
         if 'entradas_usuarios_checkbox_' + self.plot_id not in st.session_state:
-            st.session_state['entradas_usuarios_checkbox_' + self.plot_id] = True
+            st.session_state['entradas_usuarios_checkbox_' + self.plot_id] = False
         
         if 'plot_' + self.plot_id not in st.session_state:
             st.session_state['plot_' + self.plot_id] = 'Edad'
         
         if 'filtrar_usuarios_checkbox' + self.plot_id  not in st.session_state:
-            st.session_state['filtrar_usuarios_checkbox' + self.plot_id ] = True
+            st.session_state['filtrar_usuarios_checkbox' + self.plot_id ] = False
+        
+        if 'filtrar_entradas_checkbox' + self.plot_id  not in st.session_state:
+            st.session_state['filtrar_entradas_checkbox' + self.plot_id ] = False
     
     def sidebar(self):
         st.sidebar.selectbox('Gráfico', list(data_dictionary.keys()), key='plot_'+ self.plot_id)
      
         st.sidebar.checkbox('Entradas - Usuarios', key='entradas_usuarios_checkbox_' + self.plot_id)
-        if not st.session_state['entradas_usuarios_checkbox_' + self.plot_id]:
+        if st.session_state['entradas_usuarios_checkbox_' + self.plot_id]:
             st.sidebar.selectbox(f"Entrada Usuarios ", options=["Entradas", "Usuarios"], key='entradas_usuarios_filter_' + self.plot_id)
        
         st.sidebar.checkbox("Recomendaciones", key='all_recommendations_checkbox_' + self.plot_id)
-        if not st.session_state['all_recommendations_checkbox_' + self.plot_id]:
-            
+        if st.session_state['all_recommendations_checkbox_' + self.plot_id]:
             st.sidebar.selectbox("Siguieron recomendaciones", options=['Si', 'No',"Ambas"], key='recommendations_selectbox_'  + self.plot_id)
             st.sidebar.number_input("Min days difference", min_value=0, max_value=1000, value=10,  key='min_days_diff_input_'  + self.plot_id)
             st.sidebar.number_input("Max days difference", min_value=0, max_value=1000, value = 30,  key='max_days_diff_input_' + self.plot_id)
             st.sidebar.selectbox("Antes Después", options=["Antes", "Después", "Ambas", 'Antes vs Después'  ], key='ambas_antes_despues_' + self.plot_id)
 
         st.sidebar.checkbox(f'Fechas', key='all_dates_checkbox_' + self.plot_id)
-        if not st.session_state['all_dates_checkbox_' + self.plot_id]:
+        if  st.session_state['all_dates_checkbox_' + self.plot_id]:
             st.sidebar.date_input(f"Start Date", value=self.df['date_recepcion_data'].min(), key='start_date_input_' + self.plot_id)
             st.sidebar.date_input(f"End Date", value=self.df['date_recepcion_data'].max(), key='end_date_input_' + self.plot_id)
 
         st.sidebar.checkbox(f"Géneros", key='all_genders_checkbox_' + self.plot_id)
-        if not st.session_state['all_genders_checkbox_' + self.plot_id]:
+        if st.session_state['all_genders_checkbox_' + self.plot_id]:
             st.sidebar.selectbox(f"Select Gender", options=self.df['genero'].unique().tolist() , key='selected_gender_' + self.plot_id)
         
         st.sidebar.checkbox(f"Edades", key='all_ages_checkbox_' + self.plot_id)
-        if not st.session_state['all_ages_checkbox_' + self.plot_id]:
+        if st.session_state['all_ages_checkbox_' + self.plot_id]:
             st.sidebar.slider(f"Age Range", min_value=int(self.df['age'].min()), max_value=int(self.df['age'].max()), value=(int(self.df['age'].min()), int(self.df['age'].max())), key='age_range_slider_' + self.plot_id)
             st.sidebar.selectbox(f"Seleccionar Rango Etario", ['Todos', 'A', 'B', 'C', 'D'], key='age_category_selectbox_' + self.plot_id)
         
         st.sidebar.checkbox("Configurar Rangos Etarios", key='define_age_category_' + self.plot_id )
-        if not st.session_state['define_age_category_'+ self.plot_id] :
+        if st.session_state['define_age_category_'+ self.plot_id] :
             st.sidebar.number_input("Edad mínimia para A", min_value=0, max_value=100 ,value = 18, key='age_a_min_'+ self.plot_id)
             st.sidebar.number_input("Edad mínimia para B", min_value=0, max_value=100,value = 30, key='age_b_min_'+ self.plot_id)
             st.sidebar.number_input("Edad mínimia para C", min_value=0, max_value=100,value = 60,  key='age_c_min_'+ self.plot_id)
             st.sidebar.number_input("Edad mínimia para D", min_value=0, max_value=100,value = 80,  key='age_d_min_'+ self.plot_id)
        
         st.sidebar.checkbox("Mostrar datos", key='datos_' + self.plot_id)
+        
         st.sidebar.checkbox("Filtrar por usuarios", key='filtrar_usuarios_checkbox' + self.plot_id )
-        if not st.session_state['filtrar_usuarios_checkbox' + self.plot_id]:
+        if st.session_state['filtrar_usuarios_checkbox' + self.plot_id]:
             st.sidebar.text_input('Ingrese el ID del usuario', key='filtrar_usuarios_texto'+ self.plot_id)
+        
+        st.sidebar.checkbox("Filtrar por cantidad de entradas", key='filtrar_entradas_checkbox' + self.plot_id )
+        if st.session_state['filtrar_entradas_checkbox' + self.plot_id]:
             st.sidebar.number_input('Ingrese cantidad de entradas', key='filtrar_usuarios_cantidad' + self.plot_id, min_value=1,  step=1, format="%d" )
 
 class Filters:
@@ -486,32 +492,31 @@ class Filters:
         self.result_antes = self.df
         self.result_despues = self.df
 
-        if not st.session_state[f'all_dates_checkbox_{self.plot_id}']:
+        if st.session_state[f'all_dates_checkbox_{self.plot_id}']:
             self.result = self.dates(self.result)
             self.result_antes = self.dates(self.result_antes)
             self.result_despues = self.dates(self.result_despues)
             
-        if not st.session_state[f'all_ages_checkbox_{self.plot_id}']:
+        if st.session_state[f'all_ages_checkbox_{self.plot_id}']:
             self.result = self.ages(self.result)
             self.result_antes = self.ages(self.result_antes)
             self.result_despues = self.ages(self.result_despues)
 
-        if  not st.session_state[f'all_genders_checkbox_{self.plot_id}']:
+        if st.session_state[f'all_genders_checkbox_{self.plot_id}']:
             if  st.session_state[f'selected_gender_{self.plot_id}'] != '0 vs 1':
                 genero = st.session_state[f'selected_gender_{self.plot_id}']
                 self.result = self.genders(self.result, genero)
                 self.result_antes = self.genders(self.result_antes, genero)
                 self.result_despues = self.genders(self.result_despues, genero)
 
-        if not st.session_state[f'all_recommendations_checkbox_{self.plot_id}']:
+        if  st.session_state[f'all_recommendations_checkbox_{self.plot_id}']:
             if st.session_state[f'ambas_antes_despues_{self.plot_id}'] != 'Antes vs Después':
                  self.result = self.recomendations(self.result, days_min=st.session_state[f'min_days_diff_input_{self.plot_id}'],days_max=st.session_state[f'max_days_diff_input_{self.plot_id}'], rec_filter=st.session_state[f'recommendations_selectbox_{self.plot_id}'], when_filter=st.session_state[f'ambas_antes_despues_{self.plot_id}'])
             else:
                 self.result_antes = self.recomendations(self.result_antes, st.session_state[f'min_days_diff_input_{self.plot_id}'],days_max=st.session_state[f'max_days_diff_input_{self.plot_id}'],rec_filter=st.session_state[f'recommendations_selectbox_{self.plot_id}'], when_filter='Antes')
-                self.result_despues = self.recomendations(self.result_despues, st.session_state[f'min_days_diff_input_{self.plot_id}'],days_max=st.session_state[f'max_days_diff_input_{self.plot_id}'],rec_filter=st.session_state[f'recommendations_selectbox_{self.plot_id}'], when_filter='Después')
-                
+                self.result_despues = self.recomendations(self.result_despues, st.session_state[f'min_days_diff_input_{self.plot_id}'],days_max=st.session_state[f'max_days_diff_input_{self.plot_id}'],rec_filter=st.session_state[f'recommendations_selectbox_{self.plot_id}'], when_filter='Después')    
 
-        if not st.session_state[f'rango_etario_{self.plot_id}']:
+        if  st.session_state[f'rango_etario_{self.plot_id}']:
             self.result = self.select_age_category(self.result)
             self.result_antes = self.select_age_category(self.result_antes)
             self.result_despues = self.select_age_category(self.result_despues)
@@ -521,42 +526,26 @@ class Filters:
             self.result_antes = self.select_age_category(self.result_antes, st.session_state[f'age_category_selectbox_{self.plot_id}'])
             self.result_despues = self.select_age_category(self.result_despues, st.session_state[f'age_category_selectbox_{self.plot_id}'])
 
-        if not st.session_state['define_age_category_' + self.plot_id]:  
-            if (
-                st.session_state['age_b_min_' + self.plot_id] or 
-                st.session_state['age_c_min_' + self.plot_id] or 
-                st.session_state['age_d_min_' + self.plot_id]
-            ):  
-                self.result = self.categorize_age(
-                    self.result,
-                    st.session_state['age_b_min_' + self.plot_id],
-                    st.session_state['age_c_min_' + self.plot_id],
-                    st.session_state['age_d_min_' + self.plot_id]
-                )
-                self.result_antes = self.categorize_age(
-                    self.result_antes,
-                    st.session_state['age_b_min_' + self.plot_id],
-                    st.session_state['age_c_min_' + self.plot_id],
-                    st.session_state['age_d_min_' + self.plot_id]
-                )
-                self.result_despues = self.categorize_age(
-                    self.result_despues,
-                    st.session_state['age_b_min_' + self.plot_id],
-                    st.session_state['age_c_min_' + self.plot_id],
-                    st.session_state['age_d_min_' + self.plot_id]
-                )
+        if  st.session_state['define_age_category_' + self.plot_id]:  
+            if (st.session_state['age_b_min_' + self.plot_id] or st.session_state['age_c_min_' + self.plot_id] or st.session_state['age_d_min_' + self.plot_id]):  
+                self.result = self.categorize_age(self.result, st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id],st.session_state['age_d_min_' + self.plot_id])
+                self.result_antes = self.categorize_age(self.result_antes,st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id], st.session_state['age_d_min_' + self.plot_id])
+                self.result_despues = self.categorize_age(self.result_despues,st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id],st.session_state['age_d_min_' + self.plot_id])
 
-        if  st.session_state['filtrar_usuarios_checkbox' + self.plot_id ] == False: 
+        
+        if  st.session_state['filtrar_usuarios_checkbox' + self.plot_id ] == True: 
             if 'filtrar_usuarios_texto' + self.plot_id in st.session_state and st.session_state['filtrar_usuarios_texto' + self.plot_id]:
                 self.result = self.users(self.result, st.session_state['filtrar_usuarios_texto' + self.plot_id])
                 self.result_antes = self.users(self.result_antes, st.session_state['filtrar_usuarios_texto' + self.plot_id])
                 self.result_despues = self.users(self.result_despues, st.session_state['filtrar_usuarios_texto' + self.plot_id])
+        
+        if  st.session_state['filtrar_entradas_checkbox' + self.plot_id ] == True: 
             if 'filtrar_usuarios_cantidad' + self.plot_id in st.session_state and st.session_state['filtrar_usuarios_cantidad' + self.plot_id]:
                 self.result = self.users_count(self.result, st.session_state['filtrar_usuarios_cantidad' + self.plot_id])
                 self.result_antes = self.users_count(self.result_antes, st.session_state['filtrar_usuarios_cantidad' + self.plot_id])
                 self.result_despues = self.users_count(self.result_despues, st.session_state['filtrar_usuarios_cantidad' + self.plot_id])
         
-        if not st.session_state['entradas_usuarios_checkbox_' + self.plot_id]:
+        if  st.session_state['entradas_usuarios_checkbox_' + self.plot_id] == True:
             if st.session_state[f'entradas_usuarios_filter_{self.plot_id}'] == 'Usuarios':
                 self.result = self.entries_users(self.result)
                 self.result_antes = self.entries_users(self.result_antes)
@@ -592,7 +581,7 @@ class PlotGenerator:
             self.color_pie = blue
             self.color = custom_colors['cat_todos']
         
-        elif not st.session_state['all_genders_checkbox_' + self.plot_id] and st.session_state['all_ages_checkbox_' + self.plot_id]:
+        elif  st.session_state['all_genders_checkbox_' + self.plot_id] and st.session_state['all_ages_checkbox_' + self.plot_id]:
             if gender == 0:
                 self.color_pie = blue_0
                 self.color = custom_colors['cat_todos_0']
@@ -600,7 +589,7 @@ class PlotGenerator:
                 self.color_pie = blue_1
                 self.color = custom_colors['cat_todos_1']
 
-        elif not st.session_state['all_genders_checkbox_' + self.plot_id] and not st.session_state['all_ages_checkbox_' + self.plot_id]:
+        elif  st.session_state['all_genders_checkbox_' + self.plot_id] and not st.session_state['all_ages_checkbox_' + self.plot_id]:
             
             if age_category == 'Todos':
                 if gender == 0:
@@ -1119,7 +1108,7 @@ class PlotGenerator:
     def pie_edad(self):
         
         fig, ax = plt.subplots(figsize=(8, 6))
-        if not st.session_state['all_genders_checkbox_' + self.plot_id]:
+        if  st.session_state['all_genders_checkbox_' + self.plot_id]:
             if st.session_state['selected_gender_' + self.plot_id] == 0:
                 colors = [ custom_colors['cat_B_0'], custom_colors['cat_C_0'], custom_colors['cat_A_0'], custom_colors['cat_D_0']]
             elif st.session_state['selected_gender_' + self.plot_id] == 1:
@@ -1319,7 +1308,7 @@ def main():
                             df_combinado = df_combinado[column_order_combinado]
                             df_combinado = df_combinado.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
                             with col:  
-                                if st.session_state['datos_' + plot_id] == False:                    
+                                if st.session_state['datos_' + plot_id] == True:                    
                                     
                                     st.title('Datos')
                                     if st.session_state['ambas_antes_despues_' + plot_id] == 'Antes vs Después':   
