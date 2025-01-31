@@ -389,34 +389,15 @@ class StreamLit:
        
         st.sidebar.checkbox("Mostrar datos", key='datos_' + self.plot_id)
         
-        # st.sidebar.checkbox("Filtrar por usuarios", key='filtrar_usuarios_checkbox' + self.plot_id )
-        # if st.session_state['filtrar_usuarios_checkbox' + self.plot_id]:
-        #     st.sidebar.text_input('Ingrese el ID del usuario', key='filtrar_usuarios_texto'+ self.plot_id)
-        
-        # st.sidebar.checkbox("Filtrar por cantidad de entradas", key='filtrar_entradas_checkbox' + self.plot_id )
-        # if st.session_state['filtrar_entradas_checkbox' + self.plot_id]:
-        #     st.sidebar.number_input('Ingrese cantidad de entradas', key='filtrar_usuarios_cantidad' + self.plot_id, min_value=1,  step=1, format="%d")
-        
-        # Definimos las claves únicas para los checkboxes
-        checkbox_usuarios = 'filtrar_usuarios_checkbox' + self.plot_id
-        checkbox_entradas = 'filtrar_entradas_checkbox' + self.plot_id
 
-        # Consultar el estado actual de los checkboxes en la sesión
-        filtrar_por_usuarios_activado = st.session_state.get(checkbox_usuarios, False)
-        filtrar_por_entradas_activado = st.session_state.get(checkbox_entradas, False)
 
-        # Lógica para exclusión mutua al definir los checkboxes
-        if not filtrar_por_entradas_activado:
-            filtrar_por_usuarios = st.sidebar.checkbox(
-                "Filtrar por usuarios", key=checkbox_usuarios
-            )
+        if not st.session_state.get('filtrar_entradas_checkbox' + self.plot_id, False):
+            filtrar_por_usuarios = st.sidebar.checkbox("Filtrar por usuarios", key='filtrar_usuarios_checkbox' + self.plot_id)
             if filtrar_por_usuarios:
                 st.sidebar.text_input('Ingrese el ID del usuario', key='filtrar_usuarios_texto' + self.plot_id)
 
-        if not filtrar_por_usuarios_activado:
-            filtrar_por_entradas = st.sidebar.checkbox(
-                "Filtrar por cantidad de entradas", key=checkbox_entradas
-            )
+        if not st.session_state.get('filtrar_usuarios_checkbox' + self.plot_id, False):
+            filtrar_por_entradas = st.sidebar.checkbox("Filtrar por cantidad de entradas", key='filtrar_entradas_checkbox' + self.plot_id)
             if filtrar_por_entradas:
                 st.sidebar.number_input('Ingrese cantidad de entradas', key='filtrar_usuarios_cantidad' + self.plot_id, min_value=1, step=1, format="%d")
 
