@@ -60,6 +60,7 @@ red_0 = adjust_palette(reds, is_lighter=True)
 red_1 = adjust_palette(reds, is_lighter=False)
 
 data_dictionary = {
+    'Gráficos':'graficos',
     'Fecha de recepción de datos': 'date_recepcion_data',
     'Edad': 'age',
     'Provincia': 'provincia',
@@ -199,7 +200,6 @@ class DataLoader:
        
        # columns_to_fix = ['rec_NOFOTICO_HAB_alarma_si_no','rec_FOTICO_luz_natural_8_15_integrada','rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada','rec_NOFOTICO_estudios_integrada','rec_NOFOTICO_trabajo_integrada','rec_NOFOTICO_otra_actividad_habitual_si_no','rec_NOFOTICO_cena_integrada','rec_HAB_siesta_integrada']
        #self.df[columns_to_fix] = self.df[columns_to_fix].fillna('None').astype(str)
-        
         
         time = pd.to_datetime(self.df['HAB_Hora_acostar'], format='%H:%M')
         self.df['HAB_Hora_acostar'] = time.dt.hour + time.dt.minute / 60
@@ -344,7 +344,7 @@ class StreamLit:
             st.session_state['entradas_usuarios_checkbox_' + self.plot_id] = False
         
         if 'plot_' + self.plot_id not in st.session_state:
-            st.session_state['plot_' + self.plot_id] = 'Edad'
+            st.session_state['plot_' + self.plot_id] = 'Gráficos'
         
         if 'filtrar_usuarios_checkbox' + self.plot_id  not in st.session_state:
             st.session_state['filtrar_usuarios_checkbox' + self.plot_id ] = False
@@ -353,12 +353,24 @@ class StreamLit:
             st.session_state['filtrar_entradas_checkbox' + self.plot_id ] = False
     
     def sidebar(self):
-        st.sidebar.selectbox('Gráfico', list(data_dictionary.keys()), key='plot_'+ self.plot_id)
+        # st.sidebar.selectbox('Gráfico', list(data_dictionary.keys()), key='plot_'+ self.plot_id)
      
-        st.sidebar.checkbox('Entradas - Usuarios', key='entradas_usuarios_checkbox_' + self.plot_id)
-        if st.session_state['entradas_usuarios_checkbox_' + self.plot_id]:
-            st.sidebar.selectbox(f"Entrada Usuarios ", options=["Entradas", "Usuarios"], key='entradas_usuarios_filter_' + self.plot_id)
+        # st.sidebar.checkbox('Entradas - Usuarios', key='entradas_usuarios_checkbox_' + self.plot_id)
+        # if st.session_state['entradas_usuarios_checkbox_' + self.plot_id]:
+        #     st.sidebar.selectbox(f"Entrada Usuarios ", options=["Entradas", "Usuarios"], key='entradas_usuarios_filter_' + self.plot_id)
        
+        # Selectbox para seleccionar el gráfico
+
+        if data_dictionary.get(st.sidebar.selectbox('Gráfico', list(data_dictionary.keys()), key='plot_' + self.plot_id)) == 'age':
+            # Forzar la activación del checkbox y seleccionar automáticamente "Usuarios" solo si no está activado ya
+                st.session_state['entradas_usuarios_checkbox_' + self.plot_id] = True
+                st.session_state['entradas_usuarios_filter_' + self.plot_id] = "Usuarios"
+        else:
+            if st.sidebar.checkbox('Entradas - Usuarios', key='entradas_usuarios_checkbox_' + self.plot_id):
+                st.sidebar.selectbox("Entrada Usuarios", options=["Entradas", "Usuarios"], key='entradas_usuarios_filter_' + self.plot_id)
+
+
+
         st.sidebar.checkbox("Recomendaciones", key='all_recommendations_checkbox_' + self.plot_id)
         if st.session_state['all_recommendations_checkbox_' + self.plot_id]:
             st.sidebar.selectbox("Siguieron recomendaciones", options=['Si', 'No',"Ambas"], key='recommendations_selectbox_'  + self.plot_id)
@@ -388,8 +400,6 @@ class StreamLit:
             st.sidebar.number_input("Edad mínimia para D", min_value=0, max_value=100,value = 80,  key='age_d_min_'+ self.plot_id)
        
         st.sidebar.checkbox("Mostrar datos", key='datos_' + self.plot_id)
-        
-
 
         if not st.session_state.get('filtrar_entradas_checkbox' + self.plot_id, False):
             filtrar_por_usuarios = st.sidebar.checkbox("Filtrar por usuarios", key='filtrar_usuarios_checkbox' + self.plot_id)
@@ -537,7 +547,6 @@ class Filters:
                 self.result_antes = self.categorize_age(self.result_antes,st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id], st.session_state['age_d_min_' + self.plot_id])
                 self.result_despues = self.categorize_age(self.result_despues,st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id],st.session_state['age_d_min_' + self.plot_id])
 
-        
         if  st.session_state['filtrar_usuarios_checkbox' + self.plot_id ] == True: 
             if 'filtrar_usuarios_texto' + self.plot_id in st.session_state and st.session_state['filtrar_usuarios_texto' + self.plot_id]:
                 self.result = self.users(self.result, st.session_state['filtrar_usuarios_texto' + self.plot_id])
@@ -654,6 +663,8 @@ class PlotGenerator:
                     self.color_pie = reds
                     
     def choose_plot(self):
+        if st.session_state[f'plot_{self.plot_id}'] == 'Gráficos':
+            st.title('Seleccione un gráfico')
         if st.session_state[f'plot_{self.plot_id}'] == 'Fecha de recepción de datos':
             st.title("Fecha de recepeción de Datos")            
             self.colors()
