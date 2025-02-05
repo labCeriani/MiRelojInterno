@@ -399,17 +399,17 @@ class StreamLit:
         if st.session_state['all_genders_checkbox_' + self.plot_id]:
             st.sidebar.selectbox(f"Select Gender", options=self.df['genero'].unique().tolist() , key='selected_gender_' + self.plot_id)
         
-        st.sidebar.checkbox(f"Edades", key='all_ages_checkbox_' + self.plot_id)
+        st.sidebar.checkbox(f"Rangos etarios", key='all_ages_checkbox_' + self.plot_id)
         if st.session_state['all_ages_checkbox_' + self.plot_id]:
-            st.sidebar.slider(f"Age Range", min_value=int(self.df['age'].min()), max_value=int(self.df['age'].max()), value=(int(self.df['age'].min()), int(self.df['age'].max())), key='age_range_slider_' + self.plot_id)
-            st.sidebar.selectbox(f"Seleccionar Rango Etario", ['Todos', 'A', 'B', 'C', 'D'], key='age_category_selectbox_' + self.plot_id)
+            st.sidebar.slider(f"Seleccione el rango etario", min_value=int(self.df['age'].min()), max_value=int(self.df['age'].max()), value=(int(self.df['age'].min()), int(self.df['age'].max())), key='age_range_slider_' + self.plot_id)
+            #st.sidebar.selectbox(f"Seleccionar Rango Etario", ['Todos', 'A', 'B', 'C', 'D'], key='age_category_selectbox_' + self.plot_id)
         
-        st.sidebar.checkbox("Configurar Rangos Etarios", key='define_age_category_' + self.plot_id )
-        if st.session_state['define_age_category_'+ self.plot_id] :
-            st.sidebar.number_input("Edad mínimia para A", min_value=0, max_value=100 ,value = 18, key='age_a_min_'+ self.plot_id)
-            st.sidebar.number_input("Edad mínimia para B", min_value=0, max_value=100,value = 30, key='age_b_min_'+ self.plot_id)
-            st.sidebar.number_input("Edad mínimia para C", min_value=0, max_value=100,value = 60,  key='age_c_min_'+ self.plot_id)
-            st.sidebar.number_input("Edad mínimia para D", min_value=0, max_value=100,value = 80,  key='age_d_min_'+ self.plot_id)
+        # st.sidebar.checkbox("Configurar Rangos Etarios", key='define_age_category_' + self.plot_id )
+        # if st.session_state['define_age_category_'+ self.plot_id] :
+        #     st.sidebar.number_input("Edad mínimia para A", min_value=0, max_value=100 ,value = 18, key='age_a_min_'+ self.plot_id)
+        #     st.sidebar.number_input("Edad mínimia para B", min_value=0, max_value=100,value = 30, key='age_b_min_'+ self.plot_id)
+        #     st.sidebar.number_input("Edad mínimia para C", min_value=0, max_value=100,value = 60,  key='age_c_min_'+ self.plot_id)
+        #     st.sidebar.number_input("Edad mínimia para D", min_value=0, max_value=100,value = 80,  key='age_d_min_'+ self.plot_id)
        
         st.sidebar.checkbox("Mostrar datos", key='datos_' + self.plot_id)
 
@@ -422,7 +422,6 @@ class StreamLit:
             filtrar_por_entradas = st.sidebar.checkbox("Filtrar por cantidad de entradas", key='filtrar_entradas_checkbox' + self.plot_id)
             if filtrar_por_entradas:
                 st.sidebar.number_input('Ingrese cantidad de entradas', key='filtrar_usuarios_cantidad' + self.plot_id, min_value=1, step=1, format="%d")
-
 
 class Filters:
     def __init__(self, df, plot_id):
@@ -499,7 +498,6 @@ class Filters:
         df['age_category'] = df['age'].apply(age_category)
         return df
 
-    
     def users(self, df, user_id=None):
         if user_id is None:
             return df  
@@ -509,7 +507,6 @@ class Filters:
             return df  # Devuelve el DataFrame original si no se encuentra el usuario
         
         return filtered_df  # Devuelve el DataFrame filtrado si se encuentra el usuario
-
 
     def users_count(self, df, n):
         user_counts = df['user_id'].value_counts()
@@ -521,7 +518,7 @@ class Filters:
         self.result = self.df
         self.result_antes = self.df
         self.result_despues = self.df
-        
+    
         if  st.session_state['filtrar_entradas_checkbox' + self.plot_id ] == True: 
             if 'filtrar_usuarios_cantidad' + self.plot_id in st.session_state:
                 self.result = self.users_count(self.result, st.session_state['filtrar_usuarios_cantidad' + self.plot_id])
@@ -552,21 +549,21 @@ class Filters:
                 self.result_antes = self.recomendations(self.result_antes, st.session_state[f'min_days_diff_input_{self.plot_id}'],days_max=st.session_state[f'max_days_diff_input_{self.plot_id}'],rec_filter=st.session_state[f'recommendations_selectbox_{self.plot_id}'], when_filter='Antes')
                 self.result_despues = self.recomendations(self.result_despues, st.session_state[f'min_days_diff_input_{self.plot_id}'],days_max=st.session_state[f'max_days_diff_input_{self.plot_id}'],rec_filter=st.session_state[f'recommendations_selectbox_{self.plot_id}'], when_filter='Después')    
 
-        if  st.session_state[f'rango_etario_{self.plot_id}']:
-            self.result = self.select_age_category(self.result)
-            self.result_antes = self.select_age_category(self.result_antes)
-            self.result_despues = self.select_age_category(self.result_despues)
+        # if  st.session_state[f'rango_etario_{self.plot_id}']:
+        #     self.result = self.select_age_category(self.result)
+        #     self.result_antes = self.select_age_category(self.result_antes)
+        #     self.result_despues = self.select_age_category(self.result_despues)
 
-        if st.session_state[f'age_category_selectbox_{self.plot_id}'] != 'Todos':
-            self.result = self.select_age_category(self.result, st.session_state[f'age_category_selectbox_{self.plot_id}'])
-            self.result_antes = self.select_age_category(self.result_antes, st.session_state[f'age_category_selectbox_{self.plot_id}'])
-            self.result_despues = self.select_age_category(self.result_despues, st.session_state[f'age_category_selectbox_{self.plot_id}'])
+        # if st.session_state[f'age_category_selectbox_{self.plot_id}'] != 'Todos':
+        #     self.result = self.select_age_category(self.result, st.session_state[f'age_category_selectbox_{self.plot_id}'])
+        #     self.result_antes = self.select_age_category(self.result_antes, st.session_state[f'age_category_selectbox_{self.plot_id}'])
+        #     self.result_despues = self.select_age_category(self.result_despues, st.session_state[f'age_category_selectbox_{self.plot_id}'])
 
-        if  st.session_state['define_age_category_' + self.plot_id]:  
-            if (st.session_state['age_b_min_' + self.plot_id] or st.session_state['age_c_min_' + self.plot_id] or st.session_state['age_d_min_' + self.plot_id]):  
-                self.result = self.categorize_age(self.result, st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id],st.session_state['age_d_min_' + self.plot_id])
-                self.result_antes = self.categorize_age(self.result_antes,st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id], st.session_state['age_d_min_' + self.plot_id])
-                self.result_despues = self.categorize_age(self.result_despues,st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id],st.session_state['age_d_min_' + self.plot_id])
+        # if  st.session_state['define_age_category_' + self.plot_id]:  
+        #     if (st.session_state['age_b_min_' + self.plot_id] or st.session_state['age_c_min_' + self.plot_id] or st.session_state['age_d_min_' + self.plot_id]):  
+        #         self.result = self.categorize_age(self.result, st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id],st.session_state['age_d_min_' + self.plot_id])
+        #         self.result_antes = self.categorize_age(self.result_antes,st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id], st.session_state['age_d_min_' + self.plot_id])
+        #         self.result_despues = self.categorize_age(self.result_despues,st.session_state['age_b_min_' + self.plot_id],st.session_state['age_c_min_' + self.plot_id],st.session_state['age_d_min_' + self.plot_id])
 
         if  st.session_state['filtrar_usuarios_checkbox' + self.plot_id ] == True: 
             if 'filtrar_usuarios_texto' + self.plot_id in st.session_state:
@@ -586,7 +583,7 @@ class PlotGenerator:
         self.plot_id = plot_id
         self.count = None
         self.bins = None
-        self.color = custom_colors['cat_todos']
+        
         self.color_pie = blue
         self.x = None
         self.y = None
@@ -601,88 +598,92 @@ class PlotGenerator:
         self.df_combinado = df_combinado
         self.pie = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
         self.fontsize2 = 10
+        self.default_palette = sns.color_palette("Blues", 6)  # Escala continua de azules
+        self.color = self.default_palette[0]  # Primer color en la escala (el más oscuro)
+
+
     
-    def colors(self):
-        age_category = st.session_state['age_category_selectbox_' + self.plot_id]
-        gender = st.session_state['selected_gender_' + self.plot_id]
+    # def colors(self):
+    #     age_category = st.session_state['age_category_selectbox_' + self.plot_id]
+    #     gender = st.session_state['selected_gender_' + self.plot_id]
 
-        if st.session_state['all_genders_checkbox_' + self.plot_id] and st.session_state['all_ages_checkbox_' + self.plot_id]:
-            self.color_pie = blue
-            self.color = custom_colors['cat_todos']
+    #     if st.session_state['all_genders_checkbox_' + self.plot_id] and st.session_state['all_ages_checkbox_' + self.plot_id]:
+    #         self.color_pie = blue
+    #         self.color = custom_colors['cat_todos']
         
-        elif  st.session_state['all_genders_checkbox_' + self.plot_id] and st.session_state['all_ages_checkbox_' + self.plot_id]:
-            if gender == 0:
-                self.color_pie = blue_0
-                self.color = custom_colors['cat_todos_0']
-            elif gender == 1:
-                self.color_pie = blue_1
-                self.color = custom_colors['cat_todos_1']
+    #     elif  st.session_state['all_genders_checkbox_' + self.plot_id] and st.session_state['all_ages_checkbox_' + self.plot_id]:
+    #         if gender == 0:
+    #             self.color_pie = blue_0
+    #             self.color = custom_colors['cat_todos_0']
+    #         elif gender == 1:
+    #             self.color_pie = blue_1
+    #             self.color = custom_colors['cat_todos_1']
 
-        elif  st.session_state['all_genders_checkbox_' + self.plot_id] and not st.session_state['all_ages_checkbox_' + self.plot_id]:
+    #     elif  st.session_state['all_genders_checkbox_' + self.plot_id] and not st.session_state['all_ages_checkbox_' + self.plot_id]:
             
-            if age_category == 'Todos':
-                if gender == 0:
-                    self.color = custom_colors['cat_todos_0']
-                    self.color_pie = blue_0
-                elif gender == 1:
-                    self.color = custom_colors['cat_todos_1']
-                    self.color_pie = blue_1
+    #         if age_category == 'Todos':
+    #             if gender == 0:
+    #                 self.color = custom_colors['cat_todos_0']
+    #                 self.color_pie = blue_0
+    #             elif gender == 1:
+    #                 self.color = custom_colors['cat_todos_1']
+    #                 self.color_pie = blue_1
             
-            elif age_category == 'A':
-                if gender == 0:
-                    self.color = custom_colors['cat_A_0']
-                    self.color_pie = green_0
-                elif gender == 1:
-                    self.color = custom_colors['cat_A_1']
-                    self.color_pie = green_1
+    #         elif age_category == 'A':
+    #             if gender == 0:
+    #                 self.color = custom_colors['cat_A_0']
+    #                 self.color_pie = green_0
+    #             elif gender == 1:
+    #                 self.color = custom_colors['cat_A_1']
+    #                 self.color_pie = green_1
 
-            elif age_category == 'B':
-                if gender == 0:
-                    self.color = custom_colors['cat_B_0']
-                    self.color_pie = yellow_0
-                elif gender == 1:
-                    self.color = custom_colors['cat_B_1']
-                    self.color_pie = yellow_1
+    #         elif age_category == 'B':
+    #             if gender == 0:
+    #                 self.color = custom_colors['cat_B_0']
+    #                 self.color_pie = yellow_0
+    #             elif gender == 1:
+    #                 self.color = custom_colors['cat_B_1']
+    #                 self.color_pie = yellow_1
 
-            elif age_category == 'C':
-                if gender == 0:
-                    self.color = custom_colors['cat_C_0']
-                    self.color_pie = orange_0
-                elif gender == 1:
-                    self.color = custom_colors['cat_C_1']
-                    self.color_pie = orange_1
+    #         elif age_category == 'C':
+    #             if gender == 0:
+    #                 self.color = custom_colors['cat_C_0']
+    #                 self.color_pie = orange_0
+    #             elif gender == 1:
+    #                 self.color = custom_colors['cat_C_1']
+    #                 self.color_pie = orange_1
             
-            elif age_category == 'D':
-                if gender == 0:
-                    self.color = custom_colors['cat_D_0']
-                    self.color_pie = red_0
-                elif gender == 1:
-                    self.color = custom_colors['cat_D_1']
-                    self.color_pie = red_1
+    #         elif age_category == 'D':
+    #             if gender == 0:
+    #                 self.color = custom_colors['cat_D_0']
+    #                 self.color_pie = red_0
+    #             elif gender == 1:
+    #                 self.color = custom_colors['cat_D_1']
+    #                 self.color_pie = red_1
 
-        elif st.session_state['all_genders_checkbox_' + self.plot_id] and not st.session_state['all_ages_checkbox_' + self.plot_id]:
-            if age_category == 'Todos':
-                    self.color = custom_colors['cat_todos']
-                    self.color_pie = blue
-            elif age_category == 'A':
-                    self.color = custom_colors['cat_A_0']
-                    self.color_pie = green
-            elif age_category == 'B':
-                    self.color = custom_colors['cat_B']
-                    self.color_pie = yellow
-            elif age_category == 'C':
-                    self.color = custom_colors['cat_C']
-                    self.color_pie = orange
-            elif age_category == 'D':
-                    self.color = custom_colors['cat_D']
-                    self.color_pie = reds
-                    
+    #     elif st.session_state['all_genders_checkbox_' + self.plot_id] and not st.session_state['all_ages_checkbox_' + self.plot_id]:
+    #         if age_category == 'Todos':
+    #                 self.color = custom_colors['cat_todos']
+    #                 self.color_pie = blue
+    #         elif age_category == 'A':
+    #                 self.color = custom_colors['cat_A_0']
+    #                 self.color_pie = green
+    #         elif age_category == 'B':
+    #                 self.color = custom_colors['cat_B']
+    #                 self.color_pie = yellow
+    #         elif age_category == 'C':
+    #                 self.color = custom_colors['cat_C']
+    #                 self.color_pie = orange
+    #         elif age_category == 'D':
+    #                 self.color = custom_colors['cat_D']
+    #                 self.color_pie = reds
+        
     def choose_plot(self):
         if st.session_state[f'plot_{self.plot_id}'] == 'Gráficos':
             st.title('Seleccione un gráfico')
         if st.session_state[f'plot_{self.plot_id}'] == 'Fecha de recepción de datos':
             st.title("Fecha de recepeción de Datos")            
-            self.colors()
+            #self.colors()
             self.df['date_recepcion_data'] = pd.to_datetime(self.df['date_recepcion_data'], format='%Y-%m-%d %H:%M:%S')
             self.df['month'] = self.df['date_recepcion_data'].dt.to_period('M')
             grouped_data = self.df.groupby('month').size().reset_index(name='count')
@@ -696,7 +697,7 @@ class PlotGenerator:
             self.lineplot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Edad':
             st.title("Rangos etarios") 
-            self.colors()
+            #self.colors()
             self.bins = 20
             self.count = 'age_category'
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -706,10 +707,10 @@ class PlotGenerator:
             self.histo_plot()
             self.count = 'age_category'
             self.title = 'Porcentaje de rangos etarios'
-            self.pie_edad()
+            #self.pie_edad()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Géneros':
             st.title("Géneros") 
-            self.colors()
+            #self.colors()
             self.bins = 2
             self.count = 'genero'
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -717,11 +718,10 @@ class PlotGenerator:
             self.y_label = 'Frecuencia'
             self.count_plot()
             
-        
         elif st.session_state[f'plot_{self.plot_id}'] == "Provincia":
             st.title("Distribución de localidades") 
             self.map()
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -735,7 +735,7 @@ class PlotGenerator:
             st.subheader('¿Cuánto crees que cambiaste tus hábitos por las recomendaciones?')
             st.subheader('1: Muy Poco')
             st.subheader('5: Completamente')
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -748,7 +748,7 @@ class PlotGenerator:
             st.subheader('0: No')
             st.subheader('1: Sí, al menos 3 días a la semana')
             st.subheader('1: Sí, 3 días o más por semana')  
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -760,7 +760,7 @@ class PlotGenerator:
             st.subheader('0: sí, casi siempre')
             st.subheader('1: No, casi nunca')
 
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -773,7 +773,7 @@ class PlotGenerator:
             st.subheader('-1: No estudio y/o no tengo clases')
             st.subheader('0: Sí, menos de 3 días por semana')
             st.subheader('1: Sí, 3 días o más por semana')
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -787,7 +787,7 @@ class PlotGenerator:
             st.subheader('0: No')
             st.subheader('-1: Sí, menos de 3 días por semana')
             st.subheader('1: Sí, 3 días o más por semana')
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -800,7 +800,7 @@ class PlotGenerator:
             st.subheader('0: No')
             st.subheader('1: Sí')
         
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -822,7 +822,7 @@ class PlotGenerator:
             st.subheader('¿A qué hora te acostás?')
             st.subheader('Los diás hábiles me acuesto: HH:MM AM/PM')
             self.bins = 24
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -834,7 +834,7 @@ class PlotGenerator:
             st.subheader('Una vez que me acosté, decido dormirme: HH:MM AM/PM')
 
             self.bins = 24
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -846,7 +846,7 @@ class PlotGenerator:
             st.subheader('¿Cuántos minutos tardaás en dormirte?')
             st.subheader('Tardo ... minutos en dormirme: Entero')
             self.bins = 24
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -857,7 +857,7 @@ class PlotGenerator:
             st.subheader('¿A qué hora te despertás?')
             st.subheader('Me despierto: HH:MM AM/PM')
             self.bins = 24
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -870,7 +870,7 @@ class PlotGenerator:
             st.subheader('0: No (Chequear si el 0 es NO)')
             st.subheader('1: Si')
             
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -883,7 +883,7 @@ class PlotGenerator:
             st.subheader('1: Sí, menos de 30 minutos')
             st.subheader('2: Sí, más de 30 minutos')
             st.write('Chequear si estan bien las respuestas')
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -893,7 +893,7 @@ class PlotGenerator:
             st.header('Calidad de sueño en días hábiles')
             st.subheader('1: Muy mal')
             st.subheader('10: Excelente')
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -905,7 +905,7 @@ class PlotGenerator:
             st.subheader('¿A qué hora te acostás?')
             st.subheader('Los días libres me acuesto a las: HH:MM AM/PM')
             
-            self.colors()
+            #self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -916,7 +916,7 @@ class PlotGenerator:
             st.title('Horario de decidir dormir en días libres')
             st.subheader('¿A qué hora decidis dormirte?')
             st.subheader('Una vez que me acosté, decido dormirme: HH:MM AM/PM')
-            self.colors()
+            #self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -928,7 +928,7 @@ class PlotGenerator:
             st.subheader('¿Cuántos minutos tardás en dormirte?')
             st.subheader('Tardo ... minutos en dormirme')
             
-            self.colors()
+            #self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -939,7 +939,7 @@ class PlotGenerator:
             st.title('Hora de despertar en días libres')
             st.subheader('¿A qué hora te despertás?')
             st.subheader('Me despierto: HH:MM (AM/PM)')
-            self.colors()
+            #self.colors()
             self.bins = 24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -952,7 +952,7 @@ class PlotGenerator:
             st.subheader('0: No')
             st.subheader('1: Si')
             
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -960,7 +960,7 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Alarma no fotica (sí/no)":
             st.title("Recomendación - Alarma no fotica (sí/no)")
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -976,7 +976,7 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Luz artificial (8-15)":
             st.title("Recomendación - Luz artificial (8-15)")
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -984,7 +984,7 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Estudios no foticos integrados":
             st.title('"Recomendación - Estudios no foticos integrados"')
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -992,7 +992,7 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Trabajo no fotico integrado":
             st.title("Recomendación - Trabajo no fotico integrado")
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -1000,7 +1000,7 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Otra actividad habitual no fotica (sí/no)":
             st.title('"Recomendación - Otra actividad habitual no fotica (sí/no)"')
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -1008,7 +1008,7 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Cena no fotica integrada":
             st.title("Recomendación - Cena no fotica integrada")
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -1016,7 +1016,7 @@ class PlotGenerator:
             ##self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Siesta habitual integrada":
             st.title("Recomendación - Siesta habitual integrada")
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -1025,7 +1025,7 @@ class PlotGenerator:
 
         elif st.session_state[f'plot_{self.plot_id}'] == "MEQ Puntaje total":
             st.title("MEQ Puntaje total")
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -1037,7 +1037,7 @@ class PlotGenerator:
             self.rotation = 45
         elif st.session_state[f'plot_{self.plot_id}'] == 'MSFsc':
             st.title('Mid-Sleep on Free Days, Sleep-Corrected')
-            self.colors()
+            #self.colors()
             self.x = 'MEQ_score_total_tipo'
             self.y_label = 'Frecuencia'
             self.rotation = 45
@@ -1060,7 +1060,7 @@ class PlotGenerator:
         elif st.session_state[f'plot_{self.plot_id}'] == 'Duración Del Sueño - Hábiles':
             st.title('Duración del sueño en días hábiles')
             self.bins = 24
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -1069,7 +1069,7 @@ class PlotGenerator:
         elif st.session_state[f'plot_{self.plot_id}'] == 'Desviación Jet Lag Social':
             st.title('Desviación Jet Lag Social')
             #Scatter Plot
-            self.colors()
+            #self.colors()
             self.y = 'user_id'
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -1107,7 +1107,7 @@ class PlotGenerator:
         elif st.session_state[f'plot_{self.plot_id}'] == 'Hora de inicio de sueño no laboral centrada':
             st.title('Hora de inicio de sueño no laboral centrada')
             self.bins=24
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
@@ -1165,19 +1165,47 @@ class PlotGenerator:
 
     def histo_plot(self): 
         fig, ax = plt.subplots(figsize=(8, 6))
+
+        # Plot the histogram
         if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-            sns.histplot(data=self.df_combinado, x=self.x, kde=False, bins=self.bins, ax=ax, palette=sns.light_palette(self.color, n_colors=2), hue='Periodo', multiple="dodge") 
+            sns.histplot(
+                data=self.df_combinado, 
+                x=self.x, 
+                kde=False, 
+                bins=self.bins, 
+                ax=ax, 
+                palette=sns.light_palette(self.color, n_colors=2), 
+                hue='Periodo', 
+                multiple="dodge"
+            ) 
         else:
             sns.histplot(data=self.df, x=self.x, kde=False, bins=self.bins, ax=ax, color=self.color)
+
+        # Add value annotations to the bars
         for p in ax.patches:
             if p.get_height() > 0:
-                ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2, p.get_height() ), ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation = self.rotation2)
+                ax.annotate(
+                    f'{int(p.get_height())}', 
+                    (p.get_x() + p.get_width() / 2, p.get_height()), 
+                    ha='center', va='bottom', 
+                    fontsize=self.fontsize2, 
+                    color='grey', 
+                    rotation=self.rotation2
+                )
+
+
+        # Set the title and axis labels
         ax.set_title(self.title, fontsize=20)
         ax.set_xlabel(self.x_label, fontsize=15)
         ax.set_ylabel(self.y_label, fontsize=15)
+
+        # Adjust other plot settings
         plt.xticks(rotation=self.rotation)
         ax.yaxis.set_visible(self.y_visible)
+
+        # Display the plot
         st.pyplot(fig)
+
 
     def count_plot(self):
             fig, ax = plt.subplots(figsize=(8, 6))
@@ -1212,6 +1240,7 @@ class PlotGenerator:
                 ax.annotate(f'{value} ({percentage:.1f}%)', (p.get_x() + p.get_width() / 2, p.get_height() ) , ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation = self.rotation2)
        
         ax.set_title(self.title, fontsize=20)
+        #ax.text(0.5, 1.02, f"Género: {st.session_state.get(f'selected_gender_{self.plot_id}', 'N/A')}", ha='center', va='bottom', transform=ax.transAxes, fontsize=14, color='grey')
         ax.set_xlabel(self.x_label, fontsize=15)
         ax.set_ylabel(self.y_label, fontsize=15)
         plt.xticks(rotation=45, ha='right')
