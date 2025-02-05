@@ -841,7 +841,7 @@ class PlotGenerator:
             st.subheader('¿Cenas habitualmente en el mismo horario?')
             st.subheader('0: Si')
             st.subheader('-1: No')
-            self.colors()
+            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
