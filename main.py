@@ -583,7 +583,6 @@ class PlotGenerator:
         self.plot_id = plot_id
         self.count = None
         self.bins = None
-        
         self.color_pie = blue
         self.x = None
         self.y = None
@@ -599,7 +598,7 @@ class PlotGenerator:
         self.pie = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
         self.fontsize2 = 10
         self.default_palette = sns.color_palette("Blues", 6)  # Escala continua de azules
-        self.color = self.default_palette[0]  # Primer color en la escala (el más oscuro)
+        self.color = self.default_palette[3]  # Primer color en la escala (el más oscuro)
 
 
     
@@ -733,7 +732,7 @@ class PlotGenerator:
         elif st.session_state[f'plot_{self.plot_id}'] == 'Percepción de cambio':
             st.title('Percepción de cambio')
             st.subheader('¿Cuánto crees que cambiaste tus hábitos por las recomendaciones?')
-            st.subheader('1: Muy Poco')
+            st.subheader('0: Nada')
             st.subheader('5: Completamente')
             #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -741,13 +740,44 @@ class PlotGenerator:
             self.y_label = 'Frecuencia'
             self.count_plot()
             ##self.pie_plot()
+
+            if st.session_state['ambas_antes_despues_' + self.plot_id] != 'Antes vs Después':
+                # Calcular media y cantidad total
+                mean_value = self.df['RECOMENDACIONES_AJUSTE'].mean()
+                data_count = len(self.df['RECOMENDACIONES_AJUSTE'].dropna())
+
+                # Mostrar resultados generales
+                st.subheader(f'Cantidad de datos graficados: {data_count}')
+                st.subheader(f'Media: {mean_value:.2f}')
+            else:
+                # Filtrar los datos para los períodos 'Antes' y 'Después'
+                df_antes = self.df_combinado[self.df_combinado['Periodo'] == 'Antes']
+                df_despues = self.df_combinado[self.df_combinado['Periodo'] == 'Después']
+
+                # Calcular media y cantidad para el período 'Antes'
+                mean_value_antes = df_antes['RECOMENDACIONES_AJUSTE'].mean()
+                data_count_antes = len(df_antes['RECOMENDACIONES_AJUSTE'].dropna())
+
+                # Calcular media y cantidad para el período 'Después'
+                mean_value_despues = df_despues['RECOMENDACIONES_AJUSTE'].mean()
+                data_count_despues = len(df_despues['RECOMENDACIONES_AJUSTE'].dropna())
+
+                # Mostrar los resultados para ambos períodos
+                st.subheader(f'Antes - Cantidad de datos: {data_count_antes}')
+                st.subheader(f'Antes - Media: {mean_value_antes:.2f}')
+                
+                st.subheader(f'Después - Cantidad de datos: {data_count_despues}')
+                st.subheader(f'Después - Media: {mean_value_despues:.2f}')
+
+
+
             
         elif st.session_state[f'plot_{self.plot_id}'] == 'Exposición luz natural':
             st.title('Exposición a la luz natural')
-            st.subheader('¿Antes de las 15:00 Estás en espacios descubiertos?')
+            st.subheader('¿Antes de las 15:00, estás en espacios descubiertos?')
             st.subheader('0: No')
             st.subheader('1: Sí, al menos 3 días a la semana')
-            st.subheader('1: Sí, 3 días o más por semana')  
+            st.subheader('2: Sí, 3 días o más por semana')  
             #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
