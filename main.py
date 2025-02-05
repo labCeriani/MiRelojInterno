@@ -361,13 +361,35 @@ class StreamLit:
        
         # Selectbox para seleccionar el gráfico
 
-        if data_dictionary.get(st.sidebar.selectbox('Gráfico', list(data_dictionary.keys()), key='plot_' + self.plot_id)) == 'age':
-            # Forzar la activación del checkbox y seleccionar automáticamente "Usuarios" solo si no está activado ya
-                st.session_state['entradas_usuarios_checkbox_' + self.plot_id] = True
-                st.session_state['entradas_usuarios_filter_' + self.plot_id] = "Usuarios"
+        # Obtener el gráfico seleccionado
+        selected_plot = st.sidebar.selectbox('Gráfico', list(data_dictionary.keys()), key='plot_' + self.plot_id)
+
+        # Claves para el estado en session_state
+        checkbox_key = 'entradas_usuarios_checkbox_' + self.plot_id
+        filter_key = 'entradas_usuarios_filter_' + self.plot_id
+        reset_key = 'reset_checkbox_' + self.plot_id
+
+        # Inicializar el estado de la bandera si no existe
+        if reset_key not in st.session_state:
+            st.session_state[reset_key] = False
+
+        # Comportamiento cuando se selecciona 'age'
+        if data_dictionary.get(selected_plot) == 'age':
+            st.session_state[checkbox_key] = True
+            st.session_state[filter_key] = "Usuarios"
+            st.session_state[reset_key] = False  # Resetear la bandera
         else:
-            if st.sidebar.checkbox('Entradas - Usuarios', key='entradas_usuarios_checkbox_' + self.plot_id):
-                st.sidebar.selectbox("Entrada Usuarios", options=["Entradas", "Usuarios"], key='entradas_usuarios_filter_' + self.plot_id)
+            # Si no es 'age', cerrar el checkbox una vez, luego permitir interacción normal
+            if not st.session_state[reset_key]:
+                st.session_state[checkbox_key] = False  # Cerrar el checkbox automáticamente
+                st.session_state[reset_key] = True     # Marcar que ya se reseteó
+
+        # Mostrar el checkbox y selectbox si está activado
+        if st.sidebar.checkbox('Entradas - Usuarios', key=checkbox_key):
+            st.sidebar.selectbox("Entrada Usuarios", options=["Entradas", "Usuarios"], key=filter_key)
+
+
+
 
 
 
