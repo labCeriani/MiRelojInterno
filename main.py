@@ -351,6 +351,12 @@ class StreamLit:
         
         if 'filtrar_entradas_checkbox' + self.plot_id  not in st.session_state:
             st.session_state['filtrar_entradas_checkbox' + self.plot_id ] = False
+        
+        if 'persepcion_checkbox_' + self.plot_id  not in st.session_state:
+            st.session_state['persepcion_checkbox_' + self.plot_id ] = False
+            
+        if 'persepcion_selectbox_' + self.plot_id  not in st.session_state:
+            st.session_state['persepcion_selectbox_' + self.plot_id ] = 0
     
     def sidebar(self):
       
@@ -382,7 +388,6 @@ class StreamLit:
             st.sidebar.selectbox("Entrada Usuarios", options=["Entradas", "Usuarios"], key=filter_key)
 
 
-
         st.sidebar.checkbox("Recomendaciones", key='all_recommendations_checkbox_' + self.plot_id)
         if st.session_state['all_recommendations_checkbox_' + self.plot_id]:
             st.sidebar.selectbox("Siguieron recomendaciones", options=['Si', 'No',"Ambas"], key='recommendations_selectbox_'  + self.plot_id)
@@ -394,10 +399,14 @@ class StreamLit:
         if  st.session_state['all_dates_checkbox_' + self.plot_id]:
             st.sidebar.date_input(f"Start Date", value=self.df['date_recepcion_data'].min(), key='start_date_input_' + self.plot_id)
             st.sidebar.date_input(f"End Date", value=self.df['date_recepcion_data'].max(), key='end_date_input_' + self.plot_id)
+        
+        st.sidebar.checkbox(f'Persepción del cambio', key='persepcion_checkbox_' + self.plot_id)
+        if  st.session_state['persepcion_checkbox_' + self.plot_id]:
+            st.sidebar.selectbox(f"Persepción del cambio", options=[0,1,2,3,4,5] , key='persepcion_selectbox_' + self.plot_id)
 
         st.sidebar.checkbox(f"Géneros", key='all_genders_checkbox_' + self.plot_id)
         if st.session_state['all_genders_checkbox_' + self.plot_id]:
-            st.sidebar.selectbox(f"Select Gender", options=self.df['genero'].unique().tolist() , key='selected_gender_' + self.plot_id)
+            st.sidebar.selectbox(f"Seleccione el genero", options=self.df['genero'].unique().tolist() , key='selected_gender_' + self.plot_id)
         
         st.sidebar.checkbox(f"Distribución de edades", key='all_ages_checkbox_' + self.plot_id)
         if st.session_state['all_ages_checkbox_' + self.plot_id]:
@@ -453,33 +462,76 @@ class Filters:
         df = df.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
         df = df.reset_index(drop=True)
         final_indices = set()  # Usamos un conjunto para evitar duplicados
-        for idx in range(1, len(df)):
-            if df.loc[idx - 1, 'user_id'] == df.loc[idx, 'user_id']:
-                if rec_filter == 'Ambas':
-                    if df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] in ['si', 'no']:
+        if st.session_state['persepcion_checkbox_' + self.plot_id]==True:
+            for idx in range(1, len(df)):
+                if df.loc[idx - 1, 'user_id'] == df.loc[idx, 'user_id']:
+                    if df.loc[idx, 'RECOMENDACIONES_AJUSTE'] == st.session_state['persepcion_selectbox_' + self.plot_id]:
+                        if rec_filter == 'Ambas':
+                            if df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] in ['si', 'no']:
+                                if days_min <= df.loc[idx, 'days_diff'] <= days_max:
+                                        if when_filter == 'Ambas':
+                                            final_indices.update([idx - 1, idx])  # Añadimos ambos índices al conjunto
+                                        elif when_filter == 'Antes':
+                                            final_indices.add(idx - 1)
+                                        elif when_filter == 'Después':
+                                            final_indices.add(idx)
+                        elif rec_filter == 'Si' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'si':
+                            if days_min <= df.loc[idx, 'days_diff'] <= days_max:
+                                if when_filter == 'Ambas':
+                                    final_indices.update([idx - 1, idx])
+                                elif when_filter == 'Antes':
+                                    final_indices.add(idx - 1)
+                                elif when_filter == 'Después':
+                                    final_indices.add(idx)
+                        elif rec_filter == 'No' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'no':
+                            if days_min <= df.loc[idx, 'days_diff'] <= days_max:
+                                if when_filter == 'Ambas':
+                                    final_indices.update([idx - 1, idx])
+                                elif when_filter == 'Antes':
+                                    final_indices.add(idx - 1)
+                                elif when_filter == 'Después':
+                                    final_indices.add(idx)
+        if st.session_state['persepcion_checkbox_' + self.plot_id]==False:
+            for idx in range(1, len(df)):
+                if df.loc[idx - 1, 'user_id'] == df.loc[idx, 'user_id']:
+                    if rec_filter == 'Ambas':
+                        if df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] in ['si', 'no']:
+                            if days_min <= df.loc[idx, 'days_diff'] <= days_max:
+                                if df.loc[idx, 'RECOMEDACIONES_AJUSTE'] == st.session_state['persepcion_selectbox_' + self.plot_id]:
+                                    if when_filter == 'Ambas':
+                                        final_indices.update([idx - 1, idx])  # Añadimos ambos índices al conjunto
+                                    elif when_filter == 'Antes':
+                                        final_indices.add(idx - 1)
+                                    elif when_filter == 'Después':
+                                        final_indices.add(idx)
+                    elif rec_filter == 'Si' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'si':
                         if days_min <= df.loc[idx, 'days_diff'] <= days_max:
                             if when_filter == 'Ambas':
-                                final_indices.update([idx - 1, idx])  # Añadimos ambos índices al conjunto
+                                final_indices.update([idx - 1, idx])
                             elif when_filter == 'Antes':
                                 final_indices.add(idx - 1)
                             elif when_filter == 'Después':
                                 final_indices.add(idx)
-                elif rec_filter == 'Si' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'si':
-                    if days_min <= df.loc[idx, 'days_diff'] <= days_max:
-                        if when_filter == 'Ambas':
-                            final_indices.update([idx - 1, idx])
-                        elif when_filter == 'Antes':
-                            final_indices.add(idx - 1)
-                        elif when_filter == 'Después':
-                            final_indices.add(idx)
-                elif rec_filter == 'No' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'no':
-                    if days_min <= df.loc[idx, 'days_diff'] <= days_max:
-                        if when_filter == 'Ambas':
-                            final_indices.update([idx - 1, idx])
-                        elif when_filter == 'Antes':
-                            final_indices.add(idx - 1)
-                        elif when_filter == 'Después':
-                            final_indices.add(idx)
+                    elif rec_filter == 'No' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'no':
+                        if days_min <= df.loc[idx, 'days_diff'] <= days_max:
+                            if when_filter == 'Ambas':
+                                final_indices.update([idx - 1, idx])
+                            elif when_filter == 'Antes':
+                                final_indices.add(idx - 1)
+                            elif when_filter == 'Después':
+                                final_indices.add(idx)
+        final_indices = sorted(final_indices)
+        return df.loc[final_indices].reset_index(drop=True)
+    
+    def persepcion(self, df):
+        df = df.sort_values(by=['user_id', 'date_recepcion_data'], ascending=[True, True])
+        df = df.reset_index(drop=True)
+        final_indices = set()
+        if st.session_state['all_recommendations_checkbox_' + self.plot_id] == False:
+            for idx in range(1, len(df)):
+                if  df.loc[idx - 1, 'user_id'] == df.loc[idx, 'user_id']:
+                    if df.loc[idx, 'RECOMENDACIONES_AJUSTE'] == st.session_state['persepcion_selectbox_' + self.plot_id]:
+                        final_indices.update([idx , idx-1])
         final_indices = sorted(final_indices)
         return df.loc[final_indices].reset_index(drop=True)
 
@@ -529,6 +581,11 @@ class Filters:
             self.result = self.dates(self.result)
             self.result_antes = self.dates(self.result_antes)
             self.result_despues = self.dates(self.result_despues)
+            
+        if st.session_state[f'persepcion_selectbox_{self.plot_id}'] and not st.session_state[f'all_recommendations_checkbox_{self.plot_id}']:
+            self.result = self.persepcion(self.result)
+            self.result_antes = self.persepcion(self.result_antes)
+            self.result_despues = self.persepcion(self.result_despues)
             
         if st.session_state[f'all_ages_checkbox_{self.plot_id}']:
             self.result = self.ages(self.result)
