@@ -399,7 +399,7 @@ class StreamLit:
         if st.session_state['all_genders_checkbox_' + self.plot_id]:
             st.sidebar.selectbox(f"Select Gender", options=self.df['genero'].unique().tolist() , key='selected_gender_' + self.plot_id)
         
-        st.sidebar.checkbox(f"Rangos etarios", key='all_ages_checkbox_' + self.plot_id)
+        st.sidebar.checkbox(f"Distribución de edades", key='all_ages_checkbox_' + self.plot_id)
         if st.session_state['all_ages_checkbox_' + self.plot_id]:
             st.sidebar.slider(f"Seleccione el rango etario", min_value=int(self.df['age'].min()), max_value=int(self.df['age'].max()), value=(int(self.df['age'].min()), int(self.df['age'].max())), key='age_range_slider_' + self.plot_id)
             #st.sidebar.selectbox(f"Seleccionar Rango Etario", ['Todos', 'A', 'B', 'C', 'D'], key='age_category_selectbox_' + self.plot_id)
@@ -683,11 +683,22 @@ class PlotGenerator:
         if st.session_state[f'plot_{self.plot_id}'] == 'Fecha de recepción de datos':
             st.title("Fecha de recepeción de Datos")            
             #self.colors()
-            self.df['date_recepcion_data'] = pd.to_datetime(self.df['date_recepcion_data'], format='%Y-%m-%d %H:%M:%S')
-            self.df['month'] = self.df['date_recepcion_data'].dt.to_period('M')
-            grouped_data = self.df.groupby('month').size().reset_index(name='count')
-            grouped_data['month'] = grouped_data['month'].dt.to_timestamp()
-            self.df = grouped_data
+            if st.session_state['ambas_antes_despues_' + self.plot_id] != 'Antes vs Después':
+                self.df['date_recepcion_data'] = pd.to_datetime(self.df['date_recepcion_data'], format='%Y-%m-%d %H:%M:%S')
+                self.df['month'] = self.df['date_recepcion_data'].dt.to_period('M')
+                grouped_data = self.df.groupby('month').size().reset_index(name='count')
+                grouped_data['month'] = grouped_data['month'].dt.to_timestamp()
+                self.df = grouped_data
+            else:
+                print(self.df_combinado.head())
+                self.df_combinado['date_recepcion_data'] = pd.to_datetime(self.df_combinado['date_recepcion_data'], format='%Y-%m-%d %H:%M:%S')
+                self.df_combinado['month'] = self.df_combinado['date_recepcion_data'].dt.to_period('M')
+                grouped_data = self.df_combinado.groupby(['month', 'Periodo']).size().reset_index(name='count')
+                grouped_data['month'] = grouped_data['month'].dt.to_timestamp()
+                self.df_combinado = grouped_data
+            
+
+                
             self.title = 'Uso de la aplicación por mes'
             self.x = 'month'
             self.y = 'count'
@@ -730,46 +741,60 @@ class PlotGenerator:
             self.count_plot()
             self.rotation = None   
         elif st.session_state[f'plot_{self.plot_id}'] == 'Percepción de cambio':
-            st.title('Percepción de cambio')
-            st.subheader('¿Cuánto crees que cambiaste tus hábitos por las recomendaciones?')
-            st.subheader('0: Nada')
-            st.subheader('5: Completamente')
+
+            # Título principal
+            st.write("# Percepción de cambio")
+
+            # Pregunta al usuario
+            st.write("## ¿Cuánto crees que cambiaste tus hábitos por las recomendaciones?")
+
+            # Escala de evaluación
+            st.write("### 0: Nada")
+            st.write("### 5: Completamente")
+
             #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
             self.count_plot()
             ##self.pie_plot()
+            print(data_dictionary[st.session_state[f'plot_{self.plot_id}']])
 
             if st.session_state['ambas_antes_despues_' + self.plot_id] != 'Antes vs Después':
                 # Calcular media y cantidad total
-                mean_value = self.df['RECOMENDACIONES_AJUSTE'].mean()
-                data_count = len(self.df['RECOMENDACIONES_AJUSTE'].dropna())
-
+                mean_value = self.df[data_dictionary[st.session_state[f'plot_{self.plot_id}']]].mean()
+                data_count = self.df[self.df[data_dictionary[st.session_state[f'plot_{self.plot_id}']]].notna()]['user_id'].nunique()
                 # Mostrar resultados generales
-                st.subheader(f'Cantidad de datos graficados: {data_count}')
-                st.subheader(f'Media: {mean_value:.2f}')
+                st.write("""
+                ## Análisis
+                ### Cantidad de usuarios: {}
+                ### Media: {:.2f}
+                """.format(data_count, mean_value))
+
             else:
                 # Filtrar los datos para los períodos 'Antes' y 'Después'
                 df_antes = self.df_combinado[self.df_combinado['Periodo'] == 'Antes']
                 df_despues = self.df_combinado[self.df_combinado['Periodo'] == 'Después']
 
                 # Calcular media y cantidad para el período 'Antes'
-                mean_value_antes = df_antes['RECOMENDACIONES_AJUSTE'].mean()
-                data_count_antes = len(df_antes['RECOMENDACIONES_AJUSTE'].dropna())
+                mean_value_antes = df_antes[data_dictionary[st.session_state[f'plot_{self.plot_id}']]].mean()
+                data_count_antes  = df_antes[df_antes[data_dictionary[st.session_state[f'plot_{self.plot_id}']]].notna()]['user_id'].nunique()
 
                 # Calcular media y cantidad para el período 'Después'
-                mean_value_despues = df_despues['RECOMENDACIONES_AJUSTE'].mean()
-                data_count_despues = len(df_despues['RECOMENDACIONES_AJUSTE'].dropna())
+                mean_value_despues = df_despues[data_dictionary[st.session_state[f'plot_{self.plot_id}']]].mean()
+                data_count_despues  = df_despues[df_despues[data_dictionary[st.session_state[f'plot_{self.plot_id}']]].notna()]['user_id'].nunique()
 
-                # Mostrar los resultados para ambos períodos
-                st.subheader(f'Antes - Cantidad de datos: {data_count_antes}')
-                st.subheader(f'Antes - Media: {mean_value_antes:.2f}')
-                
-                st.subheader(f'Después - Cantidad de datos: {data_count_despues}')
-                st.subheader(f'Después - Media: {mean_value_despues:.2f}')
+                st.write("""
+                ## Análisis antes
+                ### Cantidad de datos: {}
+                ### Media: {:.2f}
+                """.format(data_count_antes, mean_value_antes))
 
-
+                st.write("""
+                ## Análisis después
+                ### Cantidad de datos: {}
+                ### Media: {:.2f}
+                """.format(data_count_despues, mean_value_despues))
 
             
         elif st.session_state[f'plot_{self.plot_id}'] == 'Exposición luz natural':
@@ -1166,8 +1191,7 @@ class PlotGenerator:
                 ax.set_title('Después', fontsize=15)
                 st.pyplot(fig)
 
-    def pie_edad(self):
-        
+    def pie_edad(self): 
         fig, ax = plt.subplots(figsize=(8, 6))
         if  st.session_state['all_genders_checkbox_' + self.plot_id]:
             if st.session_state['selected_gender_' + self.plot_id] == 0:
@@ -1183,7 +1207,7 @@ class PlotGenerator:
 
     def lineplot(self):
         fig, ax = plt.subplots(figsize=(8, 6))
-        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':  
             sns.lineplot(data=self.df_combinado, x=self.x, y=self.y, palette=sns.light_palette(self.color, n_colors=2), ax=ax, hue='Periodo', errorbar=None)
         else:
             sns.lineplot(data=self.df, x=self.x, y=self.y, color=self.color, ax=ax, errorbar=None)
@@ -1195,47 +1219,24 @@ class PlotGenerator:
 
     def histo_plot(self): 
         fig, ax = plt.subplots(figsize=(8, 6))
-
         # Plot the histogram
         if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-            sns.histplot(
-                data=self.df_combinado, 
-                x=self.x, 
-                kde=False, 
-                bins=self.bins, 
-                ax=ax, 
-                palette=sns.light_palette(self.color, n_colors=2), 
-                hue='Periodo', 
-                multiple="dodge"
-            ) 
+            sns.histplot(data=self.df_combinado, x=self.x, kde=False, bins=self.bins, ax=ax, palette=sns.light_palette(self.color, n_colors=2), hue='Periodo', ) 
         else:
             sns.histplot(data=self.df, x=self.x, kde=False, bins=self.bins, ax=ax, color=self.color)
-
         # Add value annotations to the bars
         for p in ax.patches:
             if p.get_height() > 0:
-                ax.annotate(
-                    f'{int(p.get_height())}', 
-                    (p.get_x() + p.get_width() / 2, p.get_height()), 
-                    ha='center', va='bottom', 
-                    fontsize=self.fontsize2, 
-                    color='grey', 
-                    rotation=self.rotation2
-                )
-
-
+                ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2, p.get_height()), ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation=self.rotation2)
         # Set the title and axis labels
         ax.set_title(self.title, fontsize=20)
         ax.set_xlabel(self.x_label, fontsize=15)
         ax.set_ylabel(self.y_label, fontsize=15)
-
         # Adjust other plot settings
         plt.xticks(rotation=self.rotation)
         ax.yaxis.set_visible(self.y_visible)
-
         # Display the plot
         st.pyplot(fig)
-
 
     def count_plot(self):
             fig, ax = plt.subplots(figsize=(8, 6))
