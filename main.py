@@ -66,8 +66,8 @@ data_dictionary = {
     'Provincia': 'provincia',
     'Géneros': 'genero',
     'Percepción de cambio': 'RECOMENDACIONES_AJUSTE',
-    'Exposición luz natural': 'FOTICO_luz_natural_8_15_integrada',
-    'Exposición luz artificial': 'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',
+    'Exposición Luz Natural': 'Exposición Luz Natural',
+    'Exposición luz artificial': 'Exposición Luz Artifical',
     'Estudios no foticos integrados': 'NOFOTICO_estudios_integrada',
     'Trabajo no fotico integrado': 'NOFOTICO_trabajo_integrada',
     'Otra actividad habitual no fotica': 'NOFOTICO_otra_actividad_habitual_si_no',
@@ -85,7 +85,7 @@ data_dictionary = {
     'Hora despertar - Libres': 'LIB_Offf',
     'Alarma - Libres': 'LIB_alarma_si_no',
     'Recomendación - Alarma no fotica (sí/no)': 'rec_NOFOTICO_HAB_alarma_si_no',
-    'Recomendación - Luz natural (8-15)': 'rec_FOTICO_luz_natural_8_15_integrada',
+    'Recomendación - Luz natural (8-15)': 'Exposición Luz Natural',
     'Recomendación - Luz artificial (8-15)': 'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',
     'Recomendación - Estudios no foticos integrados': 'rec_NOFOTICO_estudios_integrada',
     'Recomendación - Trabajo no fotico integrado': 'rec_NOFOTICO_trabajo_integrada',
@@ -198,7 +198,7 @@ class DataLoader:
         self.df['days_diff'] = self.df.groupby('user_id')['date_recepcion_data'].diff().dt.days.fillna(0)
         self.df = pd.merge(self.df, df_geo, how='left', on='provincia')
        
-       # columns_to_fix = ['rec_NOFOTICO_HAB_alarma_si_no','rec_FOTICO_luz_natural_8_15_integrada','rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada','rec_NOFOTICO_estudios_integrada','rec_NOFOTICO_trabajo_integrada','rec_NOFOTICO_otra_actividad_habitual_si_no','rec_NOFOTICO_cena_integrada','rec_HAB_siesta_integrada']
+       # columns_to_fix = ['rec_NOFOTICO_HAB_alarma_si_no','Exposición Luz Natural','rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada','rec_NOFOTICO_estudios_integrada','rec_NOFOTICO_trabajo_integrada','rec_NOFOTICO_otra_actividad_habitual_si_no','rec_NOFOTICO_cena_integrada','rec_HAB_siesta_integrada']
        #self.df[columns_to_fix] = self.df[columns_to_fix].fillna('None').astype(str)
         
         time = pd.to_datetime(self.df['HAB_Hora_acostar'], format='%H:%M')
@@ -236,7 +236,10 @@ class DataLoader:
         self.convert_columns_to_int(columns_int)    
             
         self.df = self.categorize_age(self.df,20,60,80)
-        
+        self.df.rename(columns={'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada': 'Exposición Luz Artifical'}, inplace=True)
+        self.df.rename(columns={'rec_FOTICO_luz_natural_8_15_integrada': 'Exposición Luz Natural'}, inplace=True)
+
+        self.df['RECOMENDACIONES_AJUSTE'] = self.df['RECOMENDACIONES_AJUSTE'].apply(lambda x: x + 1)
         return self.df
     
    
@@ -354,9 +357,8 @@ class StreamLit:
         
         if 'persepcion_checkbox_' + self.plot_id  not in st.session_state:
             st.session_state['persepcion_checkbox_' + self.plot_id ] = False
-            
-        if 'persepcion_selectbox_' + self.plot_id  not in st.session_state:
-            st.session_state['persepcion_selectbox_' + self.plot_id ] = 0
+        
+
     
     def sidebar(self):
       
@@ -385,12 +387,30 @@ class StreamLit:
             st.sidebar.selectbox("Entrada Usuarios", options=["Entradas", "Usuarios"], key=filter_key)
 
 
+        # Checkbox para recomendaciones
         st.sidebar.checkbox("Recomendaciones", key='all_recommendations_checkbox_' + self.plot_id)
+
         if st.session_state['all_recommendations_checkbox_' + self.plot_id]:
-            st.sidebar.selectbox("Siguieron recomendaciones", options=['Si', 'No',"Ambas"], key='recommendations_selectbox_'  + self.plot_id)
-            st.sidebar.number_input("Min days difference", min_value=0, max_value=1000, value=10,  key='min_days_diff_input_'  + self.plot_id)
-            st.sidebar.number_input("Max days difference", min_value=0, max_value=1000, value = 30,  key='max_days_diff_input_' + self.plot_id)
-            st.sidebar.selectbox("Antes Después", options=["Antes", "Después",  'Antes vs Después'  ], key='ambas_antes_despues_' + self.plot_id)
+            st.sidebar.selectbox("Siguieron recomendaciones", options=['Si', 'No', "Ambas"], key='recommendations_selectbox_' + self.plot_id)
+
+            min_days = st.sidebar.number_input(
+                "Min days difference",
+                min_value=int(self.df['days_diff'].min()),
+                max_value=int(self.df['days_diff'].max()),
+                value=int(self.df['days_diff'].min()),
+                key='min_days_diff_input_' + self.plot_id
+            )
+
+            max_days = st.sidebar.number_input(
+                "Max days difference",
+                min_value=min_days,  # El mínimo permitido para el máximo es el valor del mínimo seleccionado
+                max_value=int(self.df['days_diff'].max()),
+                value=int(self.df['days_diff'].max()),
+                key='max_days_diff_input_' + self.plot_id
+            )
+
+            st.sidebar.selectbox("Antes Después", options=["Antes", "Después", 'Ambas', 'Antes vs Después'],key='ambas_antes_despues_' + self.plot_id)
+
 
         st.sidebar.checkbox(f'Fechas', key='all_dates_checkbox_' + self.plot_id)
         if  st.session_state['all_dates_checkbox_' + self.plot_id]:
@@ -399,7 +419,7 @@ class StreamLit:
         
         st.sidebar.checkbox(f'Persepción del cambio', key='persepcion_checkbox_' + self.plot_id)
         if  st.session_state['persepcion_checkbox_' + self.plot_id]:
-            st.sidebar.selectbox(f"Persepción del cambio", options=[0,1,2,3,4,5] , key='persepcion_selectbox_' + self.plot_id)
+            st.sidebar.selectbox(f"Persepción del cambio", options=[1,2,3,4,5] , key='persepcion_selectbox_' + self.plot_id)
 
         st.sidebar.checkbox(f"Géneros", key='all_genders_checkbox_' + self.plot_id)
         if st.session_state['all_genders_checkbox_' + self.plot_id]:
@@ -583,7 +603,7 @@ class Filters:
             self.result_antes = self.dates(self.result_antes)
             self.result_despues = self.dates(self.result_despues)
             
-        if st.session_state[f'persepcion_selectbox_{self.plot_id}'] and not st.session_state[f'all_recommendations_checkbox_{self.plot_id}']:
+        if st.session_state[f'persepcion_checkbox_{self.plot_id}'] and not st.session_state[f'all_recommendations_checkbox_{self.plot_id}']:
             self.result = self.persepcion(self.result)
             self.result_antes = self.persepcion(self.result_antes)
             self.result_despues = self.persepcion(self.result_despues)
@@ -855,7 +875,7 @@ class PlotGenerator:
                 """.format(data_count_despues, mean_value_despues))
 
             
-        elif st.session_state[f'plot_{self.plot_id}'] == 'Exposición luz natural':
+        elif st.session_state[f'plot_{self.plot_id}'] == 'Exposición Luz Natural':
             st.title('Exposición a la luz natural')
             st.subheader('¿Antes de las 15:00, estás en espacios descubiertos?')
             st.subheader('0: No')
@@ -867,11 +887,20 @@ class PlotGenerator:
             self.y_label = 'Frecuencia'
             self.count_plot()
             ##self.pie_plot()
+            
+            self.title = 'Exposición a la luz natural por provinica'
+            self.y_label = st.session_state[f'plot_{self.plot_id}']
+            self.hue = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
+            self.x = 'provincia'
+            self.x_label = 'Provincia'
+            self.displot()
+            
         elif st.session_state[f'plot_{self.plot_id}'] == "Exposición luz artificial":
             st.title("Exposición a la luz artificial")
             st.subheader('¿Antes de las 15:00 ¿necesitás encender la luz en el ambiente en el que más estás?')
             st.subheader('0: sí, casi siempre')
             st.subheader('1: No, casi nunca')
+        
 
             #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -879,6 +908,13 @@ class PlotGenerator:
             self.y_label = 'Frecuencia'
             self.count_plot()
             ##self.pie_plot()
+            
+            self.title = 'Exposición a la luz artifical por provinica'
+            self.y_label = st.session_state[f'plot_{self.plot_id}']
+            self.hue = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
+            self.x = 'provincia'
+            self.x_label = 'Provincia'
+            self.displot()
         
         elif st.session_state[f'plot_{self.plot_id}'] == "Estudios no foticos integrados":
             st.title("Estudios no foticos integrados")
@@ -1151,11 +1187,14 @@ class PlotGenerator:
         elif st.session_state[f'plot_{self.plot_id}'] == 'MSFsc':
             st.title('Mid-Sleep on Free Days, Sleep-Corrected')
             #self.colors()
-            self.x = 'MEQ_score_total_tipo'
+            self.x = 'MSFsc'
             self.y_label = 'Frecuencia'
+            self.x_label = 'Horas'
             self.rotation = 45
+            self.bins=20
             self.fontsize2 = 6
-            self.count_plot()
+            self.histo_plot()
+            
             data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             ##self.pie_plot()
             self.rotation = None
@@ -1297,27 +1336,64 @@ class PlotGenerator:
         st.pyplot(fig)
 
     def count_plot(self):
-            fig, ax = plt.subplots(figsize=(8, 6))
-            if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-                sns.countplot(data=self.df_combinado,x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), dodge=True, order=self.order, hue='Periodo')
-            else:
-                sns.countplot(data=self.df, x=self.x, ax=ax, color=self.color, order=self.order)
-            total = sum([p.get_height() for p in ax.patches])
-            for p in ax.patches:
-                if p.get_height() > 0:
-                    value = int(p.get_height())
-                    percentage = 100 * p.get_height() / total
-                    ax.annotate(f'{value} ({percentage:.1f}%)', (p.get_x() + p.get_width() / 2, p.get_height() ), ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation = self.rotation2)
-            
-            ax.set_title(self.title, fontsize=20)
-            ax.set_xlabel(self.x_label, fontsize=15)
-            ax.set_ylabel('Frecuencia', fontsize=15)
-            plt.xticks(rotation=self.rotation, ha='right')
-            st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            if self.df_combinado.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
+            sns.countplot(data=self.df_combinado, x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), dodge=True, order=self.order, hue='Periodo')
+        else:
+            if self.df.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
+            sns.countplot(data=self.df, x=self.x, ax=ax, color=self.color, order=self.order)
+        
+        # Añadir anotaciones al gráfico
+        total = sum([p.get_height() for p in ax.patches])
+        for p in ax.patches:
+            if p.get_height() > 0:
+                value = int(p.get_height())
+                percentage = 100 * p.get_height() / total
+                ax.annotate(f'{value} ', (p.get_x() + p.get_width() / 2, p.get_height()), ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation=self.rotation2)
+
+        # Configurar el título y etiquetas
+        ax.set_title(self.title, fontsize=20)
+        ax.set_xlabel(self.x_label, fontsize=15)
+        ax.set_ylabel('Frecuencia', fontsize=15)
+        
+        plt.xticks(rotation=self.rotation, ha='right')
+        st.pyplot(fig)
+
     
+
+
+    def displot(self):
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        # Verificar si es necesario dividir por 'Antes' y 'Después'
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            return
+        else:
+            sns.histplot(data=self.df,x=self.x,hue=self.hue,multiple='dodge',shrink=0.8,palette='muted',ax=ax)
+        ax.set_title(self.title, fontsize=20)
+        ax.set_xlabel(self.x_label, fontsize=15)
+        ax.set_ylabel('Frecuencia', fontsize=15)
+        self.rotation = 45
+        plt.xticks(rotation=self.rotation, ha='right')
+
+        st.pyplot(fig)
+
+
+
+
+
     def bar_plot(self):
         fig, ax = plt.subplots(figsize=(8, 6))
         if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            if self.df_combinado.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
             sns.barplot(data=self.df_combinado, x=self.x, y=self.y, ax=ax, palette=sns.light_palette(self.color, n_colors=2), order=self.order, hue='Periodo', ci=None)
         else:
             sns.barplot(data=self.df, x=self.x, y=self.y, ax=ax, color=self.color, order=self.order, ci=None)
@@ -1329,7 +1405,6 @@ class PlotGenerator:
                 ax.annotate(f'{value} ({percentage:.1f}%)', (p.get_x() + p.get_width() / 2, p.get_height() ) , ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation = self.rotation2)
        
         ax.set_title(self.title, fontsize=20)
-        #ax.text(0.5, 1.02, f"Género: {st.session_state.get(f'selected_gender_{self.plot_id}', 'N/A')}", ha='center', va='bottom', transform=ax.transAxes, fontsize=14, color='grey')
         ax.set_xlabel(self.x_label, fontsize=15)
         ax.set_ylabel(self.y_label, fontsize=15)
         plt.xticks(rotation=45, ha='right')
@@ -1338,6 +1413,9 @@ class PlotGenerator:
     def scatter_plot(self):
         fig, ax = plt.subplots(figsize=(8, 6))
         if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            if self.df_combinado.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
             sns.scatterplot(data=self.df_combinado, x=self.x, y=self.y, ax=ax, hue='Periodo', palette=sns.light_palette(self.color, n_colors=2))
         else:
             sns.scatterplot(data=self.df, x=self.x, y=self.y, ax=ax, color=self.color)
@@ -1351,8 +1429,10 @@ class PlotGenerator:
 
     def box_plot(self):
         fig, ax = plt.subplots(figsize=(8, 6))
-        
         if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            if self.df_combinado.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
             sns.boxplot(data=self.df_combinado, x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), hue='Periodo')
         else:
             sns.boxplot(data=self.df, x=self.x, ax=ax, color=self.color)
@@ -1439,10 +1519,24 @@ def main():
                             filters = Filters(df_all, plot_id)
                             filters.choose_filter()
                             df_filtered = filters.result
+                            if df_filtered.empty:
+                                with col:
+                                    st.subheader("No hay suficientes datos para continuar, por favor ajuste los filtros.")
+                                    return
                             df_filtered_antes = filters.result_antes
                             df_filtered_despues = filters.result_despues
-                            column_order =['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'rec_FOTICO_luz_natural_8_15_integrada' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
-                            column_order_combinado = ['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'Periodo' ,'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'rec_FOTICO_luz_natural_8_15_integrada' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
+                            
+                            if df_filtered_antes.empty:
+                                with col:
+                                    st.subheader("No hay suficientes datos para continuar, por favor ajuste los filtros.")
+                                    return
+                            if df_filtered_despues.empty:
+                                with col:
+                                    st.subheader("No hay suficientes datos para continuar, por favor ajuste los filtros.")
+                                    return
+
+                            column_order =['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'Exposición Luz Artifical', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'Exposición Luz Natural' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
+                            column_order_combinado = ['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'Periodo' ,'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'Exposición Luz Artifical', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'Exposición Luz Natural' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
                             df_all = df_all[column_order]
                             df_filtered = df_filtered[column_order]
                 
