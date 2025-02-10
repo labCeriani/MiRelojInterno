@@ -1026,11 +1026,11 @@ class PlotGenerator:
             self.count_plot()
             #self.pie_plot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Siesta habitual integrada':
-            st.header('Siesta en días hábiles')
-            st.write('¿En general, dormís siesta en tus diás hábiles?')
-            st.subheader('0: No')
-            st.subheader('1: Sí, menos de 30 minutos')
-            st.subheader('2: Sí, más de 30 minutos')
+            st.write('# Siesta en días hábiles')
+            st.write('## En general, dormís siesta en tus diás hábiles?')
+            st.write('### 0: No')
+            st.write('### 1: Sí, menos de 30 minutos')
+            st.write('### 2: Sí, más de 30 minutos')
             st.write('Chequear si estan bien las respuestas')
             #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -1038,6 +1038,13 @@ class PlotGenerator:
             self.y_label = 'Frecuencia'
             self.count_plot()
            # #self.pie_plot()
+           
+            self.title = 'Siesta en días hábiles por provinica'
+            self.y_label = st.session_state[f'plot_{self.plot_id}']
+            self.hue = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
+            self.x = 'provincia'
+            self.x_label = 'Provincia'
+            self.displot()
         elif st.session_state[f'plot_{self.plot_id}'] == 'Calidad de sueño - Hábiles':
             st.header('Calidad de sueño en días hábiles')
             st.subheader('1: Muy mal')
