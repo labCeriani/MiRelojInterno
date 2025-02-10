@@ -360,7 +360,6 @@ class StreamLit:
     
     def sidebar(self):
       
-        # Obtener el gráfico seleccionado
         selected_plot = st.sidebar.selectbox('Gráfico', list(data_dictionary.keys()), key='plot_' + self.plot_id)
 
         # Claves para el estado en session_state
@@ -378,12 +377,10 @@ class StreamLit:
             st.session_state[filter_key] = "Usuarios"
             st.session_state[reset_key] = False  # Resetear la bandera
         else:
-            # Si no es 'age', cerrar el checkbox una vez, luego permitir interacción normal
             if not st.session_state[reset_key]:
                 st.session_state[checkbox_key] = False  # Cerrar el checkbox automáticamente
                 st.session_state[reset_key] = True     # Marcar que ya se reseteó
 
-        # Mostrar el checkbox y selectbox si está activado
         if st.sidebar.checkbox('Entradas - Usuarios', key=checkbox_key):
             st.sidebar.selectbox("Entrada Usuarios", options=["Entradas", "Usuarios"], key=filter_key)
 
@@ -427,10 +424,13 @@ class StreamLit:
             if filtrar_por_usuarios:
                 st.sidebar.text_input('Ingrese el ID del usuario', key='filtrar_usuarios_texto' + self.plot_id)
 
-        if not st.session_state.get('filtrar_usuarios_checkbox' + self.plot_id, False):
-            filtrar_por_entradas = st.sidebar.checkbox("Filtrar por cantidad de entradas", key='filtrar_entradas_checkbox' + self.plot_id)
-            if filtrar_por_entradas:
-                st.sidebar.number_input('Ingrese cantidad de entradas', key='filtrar_usuarios_cantidad' + self.plot_id, min_value=1, step=1, format="%d")
+        if st.session_state['all_recommendations_checkbox_' + self.plot_id] == False and  st.session_state['persepcion_checkbox_' + self.plot_id] == False:
+            st.sidebar.checkbox("Filtrar por cantidad de entradas", key='filtrar_entradas_checkbox' + self.plot_id)
+            if st.session_state.get('filtrar_entradas_checkbox' + self.plot_id, False):st.sidebar.number_input('Ingrese cantidad de entradas',key='filtrar_usuarios_cantidad' + self.plot_id,min_value=1,step=1,format="%d")
+
+            
+        
+
 
 class Filters:
     def __init__(self, df, plot_id):
@@ -497,13 +497,12 @@ class Filters:
                     if rec_filter == 'Ambas':
                         if df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] in ['si', 'no']:
                             if days_min <= df.loc[idx, 'days_diff'] <= days_max:
-                                if df.loc[idx, 'RECOMEDACIONES_AJUSTE'] == st.session_state['persepcion_selectbox_' + self.plot_id]:
-                                    if when_filter == 'Ambas':
-                                        final_indices.update([idx - 1, idx])  # Añadimos ambos índices al conjunto
-                                    elif when_filter == 'Antes':
-                                        final_indices.add(idx - 1)
-                                    elif when_filter == 'Después':
-                                        final_indices.add(idx)
+                                if when_filter == 'Ambas':
+                                    final_indices.update([idx - 1, idx])  # Añadimos ambos índices al conjunto
+                                elif when_filter == 'Antes':
+                                    final_indices.add(idx - 1)
+                                elif when_filter == 'Después':
+                                    final_indices.add(idx)
                     elif rec_filter == 'Si' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'si':
                         if days_min <= df.loc[idx, 'days_diff'] <= days_max:
                             if when_filter == 'Ambas':
@@ -572,6 +571,8 @@ class Filters:
         self.result_despues = self.df
     
         if  st.session_state['filtrar_entradas_checkbox' + self.plot_id ] == True: 
+            if st.session_state[f'all_recommendations_checkbox_{self.plot_id}'] == True or st.session_state[f'persepcion_checkbox_{self.plot_id}'] == True:
+                return
             if 'filtrar_usuarios_cantidad' + self.plot_id in st.session_state:
                 self.result = self.users_count(self.result, st.session_state['filtrar_usuarios_cantidad' + self.plot_id])
                 self.result_antes = self.users_count(self.result_antes, st.session_state['filtrar_usuarios_cantidad' + self.plot_id])
