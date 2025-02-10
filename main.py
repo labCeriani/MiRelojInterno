@@ -1270,7 +1270,7 @@ class PlotGenerator:
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
-            self.histo_plot()
+            self.count_plot()
             
     def pie_plot(self):    
         fig, ax = plt.subplots(figsize=(8, 6))
