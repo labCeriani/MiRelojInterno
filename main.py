@@ -65,6 +65,7 @@ data_dictionary = {
     'Edad': 'age',
     'Provincia': 'provincia',
     'Géneros': 'genero',
+    'Recomendaciones': 'Recomendaciones',
     'Percepción de cambio': 'RECOMENDACIONES_AJUSTE',
     'Exposición Luz Natural': 'Exposición Luz Natural',
     'Exposición luz artificial': 'Exposición Luz Artifical',
@@ -238,6 +239,7 @@ class DataLoader:
         self.df = self.categorize_age(self.df,20,60,80)
         self.df.rename(columns={'FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada': 'Exposición Luz Artifical'}, inplace=True)
         self.df.rename(columns={'rec_FOTICO_luz_natural_8_15_integrada': 'Exposición Luz Natural'}, inplace=True)
+        self.df.rename(columns={'SEGUISTE_RECOMENDACIONES': 'Recomendaciones'}, inplace=True)
 
         self.df['RECOMENDACIONES_AJUSTE'] = self.df['RECOMENDACIONES_AJUSTE'].apply(lambda x: x + 1)
         return self.df
@@ -487,7 +489,7 @@ class Filters:
                 if df.loc[idx - 1, 'user_id'] == df.loc[idx, 'user_id']:
                     if df.loc[idx, 'RECOMENDACIONES_AJUSTE'] == st.session_state['persepcion_selectbox_' + self.plot_id]:
                         if rec_filter == 'Ambas':
-                            if df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] in ['si', 'no']:
+                            if df.loc[idx, 'Recomendaciones'] in ['si', 'no']:
                                 if days_min <= df.loc[idx, 'days_diff'] <= days_max:
                                         if when_filter == 'Ambas':
                                             final_indices.update([idx - 1, idx])  # Añadimos ambos índices al conjunto
@@ -495,7 +497,7 @@ class Filters:
                                             final_indices.add(idx - 1)
                                         elif when_filter == 'Después':
                                             final_indices.add(idx)
-                        elif rec_filter == 'Si' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'si':
+                        elif rec_filter == 'Si' and df.loc[idx, 'Recomendaciones'] == 'si':
                             if days_min <= df.loc[idx, 'days_diff'] <= days_max:
                                 if when_filter == 'Ambas':
                                     final_indices.update([idx - 1, idx])
@@ -503,7 +505,7 @@ class Filters:
                                     final_indices.add(idx - 1)
                                 elif when_filter == 'Después':
                                     final_indices.add(idx)
-                        elif rec_filter == 'No' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'no':
+                        elif rec_filter == 'No' and df.loc[idx, 'Recomendaciones'] == 'no':
                             if days_min <= df.loc[idx, 'days_diff'] <= days_max:
                                 if when_filter == 'Ambas':
                                     final_indices.update([idx - 1, idx])
@@ -515,7 +517,7 @@ class Filters:
             for idx in range(1, len(df)):
                 if df.loc[idx - 1, 'user_id'] == df.loc[idx, 'user_id']:
                     if rec_filter == 'Ambas':
-                        if df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] in ['si', 'no']:
+                        if df.loc[idx, 'Recomendaciones'] in ['si', 'no']:
                             if days_min <= df.loc[idx, 'days_diff'] <= days_max:
                                 if when_filter == 'Ambas':
                                     final_indices.update([idx - 1, idx])  # Añadimos ambos índices al conjunto
@@ -523,7 +525,7 @@ class Filters:
                                     final_indices.add(idx - 1)
                                 elif when_filter == 'Después':
                                     final_indices.add(idx)
-                    elif rec_filter == 'Si' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'si':
+                    elif rec_filter == 'Si' and df.loc[idx, 'Recomendaciones'] == 'si':
                         if days_min <= df.loc[idx, 'days_diff'] <= days_max:
                             if when_filter == 'Ambas':
                                 final_indices.update([idx - 1, idx])
@@ -531,7 +533,7 @@ class Filters:
                                 final_indices.add(idx - 1)
                             elif when_filter == 'Después':
                                 final_indices.add(idx)
-                    elif rec_filter == 'No' and df.loc[idx, 'SEGUISTE_RECOMENDACIONES'] == 'no':
+                    elif rec_filter == 'No' and df.loc[idx, 'Recomendaciones'] == 'no':
                         if days_min <= df.loc[idx, 'days_diff'] <= days_max:
                             if when_filter == 'Ambas':
                                 final_indices.update([idx - 1, idx])
@@ -677,6 +679,7 @@ class PlotGenerator:
         self.fontsize2 = 10
         self.default_palette = sns.color_palette("Blues", 6)  # Escala continua de azules
         self.color = self.default_palette[3]  # Primer color en la escala (el más oscuro)
+        self.lista = []
 
 
     
@@ -806,6 +809,25 @@ class PlotGenerator:
             self.y_label = 'Frecuencia'
             self.count_plot()
             
+        elif st.session_state[f'plot_{self.plot_id}'] == 'Recomendaciones':
+            st.title('Recomendaciones')
+            st.subheader('¿Luego de utilizar la APP, seguiste las recomendaciones sugeridas?')
+            st.subheader('0: No')
+            st.subheader('1: Sí')
+            #self.colors()
+            self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
+            self.x_label = st.session_state[f'plot_{self.plot_id}']
+            self.y_label = 'Frecuencia'
+            self.count_plot()
+            ##self.pie_plot()
+            
+            self.title = 'Exposición a la luz natural por provinica'
+            self.y_label = st.session_state[f'plot_{self.plot_id}']
+            self.hue = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
+            self.x = 'provincia'
+            self.x_label = 'Provincia'
+            self.displot()
+            
         elif st.session_state[f'plot_{self.plot_id}'] == "Provincia":
             st.title("Distribución de localidades") 
             self.map()
@@ -885,6 +907,7 @@ class PlotGenerator:
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
+            self.title =' Exposición a la luz natural '
             self.count_plot()
             ##self.pie_plot()
             
@@ -906,6 +929,7 @@ class PlotGenerator:
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
+            self.title =' Exposición luz artificial '
             self.count_plot()
             ##self.pie_plot()
             
@@ -1210,11 +1234,20 @@ class PlotGenerator:
             self.y = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.y_label = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.lineplot()
+            
             self.y = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.y_label = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x = 'NOFOTICO_cena_integrada'
             self.x_label = 'Cena Integrada'
-            self.bar_plot()
+            self.violin_plot()
+            
+            self.y = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
+            self.y_visible = True
+            self.y_label = st.session_state[f'plot_{self.plot_id}']
+            
+            self.x = 'age'
+            self.x_label = 'age'
+            self.scatter_plot()
             
         elif st.session_state[f'plot_{self.plot_id}'] == 'Duración Del Sueño - Hábiles':
             st.title('Duración del sueño en días hábiles')
@@ -1270,8 +1303,252 @@ class PlotGenerator:
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
-            self.count_plot()
+            self.bins = 12
+            self.histo_plot()
             
+            self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
+            self.x_label = st.session_state[f'plot_{self.plot_id}']
+            self.y_visible = False
+            self.y_label = None
+            self.y = 'user_id'
+            self.box_plot()
+            
+
+    def lineplot(self):
+        fig, ax = plt.subplots(figsize=(8, 6))
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':  
+            sns.lineplot(data=self.df_combinado, x=self.x, y=self.y, palette=sns.light_palette(self.color, n_colors=2), ax=ax, hue='Periodo', errorbar=None)
+        else:
+            sns.lineplot(data=self.df, x=self.x, y=self.y, color=self.color, ax=ax, errorbar=None)
+        ax.set_title(self.title, fontsize=20)
+        ax.set_xlabel(self.x_label, fontsize=15)
+        ax.set_ylabel(self.y_label, fontsize=15)
+        plt.xticks(rotation=self.rotation)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        st.pyplot(fig)
+
+    def histo_plot(self): 
+        fig, ax = plt.subplots(figsize=(8, 6))
+  
+
+        # Plot the histogram
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            sns.histplot(data=self.df_combinado, x=self.x, kde=False, bins=self.bins, ax=ax, palette=sns.light_palette(self.color, n_colors=2), hue='Periodo', ) 
+        else:
+            sns.histplot(data=self.df, x=self.x, kde=False, bins=self.bins, ax=ax, color=self.color)
+        # Add value annotations to the bars
+        for p in ax.patches:
+            if p.get_height() > 0:
+                ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2, p.get_height()), ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation=self.rotation2)
+        # Set the title and axis labels
+        ax.set_title(self.title, fontsize=20)
+        ax.set_xlabel(self.x_label, fontsize=15)
+        ax.set_ylabel(self.y_label, fontsize=15)
+        plt.xticks(rotation=self.rotation)
+        ax.yaxis.set_visible(self.y_visible)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.set_frame_on(False)
+
+        st.pyplot(fig)
+
+    def count_plot(self):
+        fig, ax = plt.subplots(figsize=(8, 6))
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            if self.df_combinado.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
+            sns.countplot(data=self.df_combinado, x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), dodge=True, order=self.order, hue='Periodo')
+        else:
+            if self.df.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
+            sns.countplot(data=self.df, x=self.x, ax=ax, color=self.color, order=self.order)
+        
+        total = sum([p.get_height() for p in ax.patches])
+        for p in ax.patches:
+            if p.get_height() > 0:
+                value = int(p.get_height())
+                percentage = 100 * p.get_height() / total
+                ax.annotate(f'{value} ', (p.get_x() + p.get_width() / 2, p.get_height()), ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation=self.rotation2)
+
+        # Configurar el título y etiquetas
+        ax.set_title(self.title, fontsize=20)
+        ax.set_xlabel(self.x_label, fontsize=15)
+        ax.set_ylabel('Frecuencia', fontsize=15)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.set_frame_on(False)
+        plt.xticks(rotation=self.rotation, ha='right')
+        st.pyplot(fig)
+
+    
+    def displot(self):
+
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            g = sns.FacetGrid(self.df_combinado, col='Periodo', height=6, aspect=1.33, hue=self.hue, palette='muted')
+            g.map(sns.histplot, self.x, multiple='dodge', shrink=0.8)
+            g.set_axis_labels(self.x_label, "Frecuencia")
+            g.set_titles(col_template="{col_name}")
+            # Ajuste de etiquetas de ejes y títulos
+            g.set_axis_labels(self.x_label, "Frecuencia", fontsize=16)
+            g.set_titles(col_template="{col_name}", size=16)
+
+            # Ajuste del tamaño de las etiquetas de los ejes
+            for ax in g.axes.flat:
+                ax.tick_params(axis='x', labelrotation=45, labelsize=14)
+                ax.tick_params(axis='y', labelsize=16)
+                ax.set_xlabel("Provincia", fontsize=16)
+                ax.set_ylabel("Frecuencia", fontsize=16)
+
+            # Ajuste del tamaño de la leyenda
+            g.add_legend()
+            for text in g._legend.texts:
+                text.set_fontsize(16)
+            g._legend.set_title(g._legend.get_title().get_text(), prop={'size': 16})  # Cambia 18 al tamaño deseado
+
+
+            # Mostrar gráfico
+            st.pyplot(g)
+            
+        else:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            sns.histplot(data=self.df,x=self.x,hue=self.hue,multiple='dodge',shrink=0.8,palette='muted',ax=ax)
+            ax.set_title(self.title, fontsize=20)
+            ax.set_xlabel(self.x_label, fontsize=15)
+            ax.set_ylabel('Frecuencia', fontsize=15)
+            self.rotation = 45
+            plt.xticks(rotation=self.rotation, ha='right')     
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            legend = ax.get_legend()
+            if legend is not None:
+                legend.set_frame_on(False)
+            plt.xticks(rotation=self.rotation, ha='right')  
+            st.pyplot(fig)
+
+
+    def bar_plot(self):
+        fig, ax = plt.subplots(figsize=(8, 6))
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            if self.df_combinado.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
+            sns.barplot(data=self.df_combinado, x=self.x, y=self.y, ax=ax, palette=sns.light_palette(self.color, n_colors=2), order=self.order, hue='Periodo', ci=None)
+        else:
+            sns.barplot(data=self.df, x=self.x, y=self.y, ax=ax, color=self.color, order=self.order, ci=None)
+        total = sum([p.get_height() for p in ax.patches])
+        for p in ax.patches:
+            if p.get_height() > 0:
+                value = int(p.get_height())
+                percentage = 100 * p.get_height() / total
+                ax.annotate(f'{value} ({percentage:.1f}%)', (p.get_x() + p.get_width() / 2, p.get_height() ) , ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation = self.rotation2)
+       
+        ax.set_title(self.title, fontsize=20)
+        ax.set_xlabel(self.x_label, fontsize=15)
+        ax.set_ylabel(self.y_label, fontsize=15)
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.set_frame_on(False)
+        plt.xticks(rotation=self.rotation, ha='right')  
+        st.pyplot(fig)
+
+    def scatter_plot(self):
+        fig, ax = plt.subplots(figsize=(8, 6))
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            if self.df_combinado.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
+            sns.scatterplot(data=self.df_combinado, x=self.x, y=self.y, ax=ax, hue='Periodo', palette=sns.light_palette(self.color, n_colors=2))
+        else:
+            sns.scatterplot(data=self.df, x=self.x, y=self.y, ax=ax, color=self.color)
+        ax.set_title(self.title, fontsize=20)
+        ax.set_xlabel(self.x_label, fontsize=15)
+        ax.set_ylabel(self.y_label, fontsize=15)
+        ax.yaxis.set_visible(self.y_visible)
+        if self.rotation:
+            plt.xticks(rotation=45)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.set_frame_on(False)
+        plt.xticks(rotation=self.rotation, ha='right')  
+        st.pyplot(fig)
+
+
+    def box_plot(self):
+        fig, ax = plt.subplots(figsize=(8, 6))
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            if self.df_combinado.empty:
+                st.subheader('No hay datos para graficar, ajuste los filtros.')
+                return
+            sns.boxplot(data=self.df_combinado, x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), hue='Periodo')
+        else:
+            sns.boxplot(data=self.df, x=self.x, ax=ax, color=self.color)
+        ax.set_title(self.title, fontsize=20)
+        ax.set_xlabel(self.x_label, fontsize=15)
+        ax.set_ylabel(self.y_label, fontsize=15)
+        ax.yaxis.set_visible(self.y_visible)
+        plt.xticks(rotation=self.rotation)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.set_frame_on(False)
+        st.pyplot(fig)
+    
+    def violin_plot(self):
+        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
+            fig, ax = plt.subplots(figsize=(8, 6))
+            sns.violinplot(data=self.df_combinado, x=self.x, y=self.y, hue='Periodo', palette=sns.light_palette(self.color, n_colors=2), split=True, inner='quartile', cut=0, scale='width', ax=ax)
+            ax.set_title(self.title, fontsize=20)
+            ax.set_xlabel(self.x_label, fontsize=15)
+            ax.set_ylabel(self.y_label, fontsize=15)
+            self.rotation = 45
+            plt.xticks(rotation=self.rotation, ha='right')     
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            legend = ax.get_legend()
+            if legend is not None:
+                legend.set_frame_on(False)
+            plt.xticks(rotation=self.rotation, ha='right')  
+            st.pyplot(fig)
+
+        
+        else:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            sns.violinplot(data=self.df, x=self.x, y=self.y, palette='muted', split=False, inner='quartile', cut=0, scale='width', ax=ax)
+            ax.set_title(self.title, fontsize=20)
+            ax.set_xlabel(self.x_label, fontsize=15)
+            ax.set_ylabel(self.y_label, fontsize=15)
+            self.rotation = 45
+            plt.xticks(rotation=self.rotation, ha='right')     
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            legend = ax.get_legend()
+            if legend is not None:
+                legend.set_frame_on(False)
+            plt.xticks(rotation=self.rotation, ha='right')  
+            st.pyplot(fig)
+
+
+        
+    def map(self): 
+        layer = pdk.Layer("HeatmapLayer",data=self.df,  get_position='[Longitude, Latitude]',  opacity=0.9,  radius_pixels=100,  intensity=1,  )
+        view_state = pdk.ViewState(latitude=self.df['Latitude'].mean(),  longitude=self.df['Longitude'].mean(),  zoom=5,  pitch=50  )
+        tooltip = {"html": "<b>Province:</b> {provincia}<br><b>Quantity:</b> {quantity}","style": {"backgroundColor": "steelblue","color": "white"}}
+        deck = pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip)
+        st.pydeck_chart(deck)
+        
     def pie_plot(self):    
         fig, ax = plt.subplots(figsize=(8, 6))
         if st.session_state['ambas_antes_despues_' + self.plot_id] != 'Antes vs Después':
@@ -1308,154 +1585,6 @@ class PlotGenerator:
         ax.pie(value_counts, labels=value_counts.index, autopct='%1.1f%%', startangle=90, colors=colors )
         ax.set_title('Rangos Etarios', fontsize=15)
         st.pyplot(fig)
-
-    def lineplot(self):
-        fig, ax = plt.subplots(figsize=(8, 6))
-        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':  
-            sns.lineplot(data=self.df_combinado, x=self.x, y=self.y, palette=sns.light_palette(self.color, n_colors=2), ax=ax, hue='Periodo', errorbar=None)
-        else:
-            sns.lineplot(data=self.df, x=self.x, y=self.y, color=self.color, ax=ax, errorbar=None)
-        ax.set_title(self.title, fontsize=20)
-        ax.set_xlabel(self.x_label, fontsize=15)
-        ax.set_ylabel(self.y_label, fontsize=15)
-        plt.xticks(rotation=self.rotation)
-        st.pyplot(fig)
-
-    def histo_plot(self): 
-        fig, ax = plt.subplots(figsize=(8, 6))
-        # Plot the histogram
-        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-            sns.histplot(data=self.df_combinado, x=self.x, kde=False, bins=self.bins, ax=ax, palette=sns.light_palette(self.color, n_colors=2), hue='Periodo', ) 
-        else:
-            sns.histplot(data=self.df, x=self.x, kde=False, bins=self.bins, ax=ax, color=self.color)
-        # Add value annotations to the bars
-        for p in ax.patches:
-            if p.get_height() > 0:
-                ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2, p.get_height()), ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation=self.rotation2)
-        # Set the title and axis labels
-        ax.set_title(self.title, fontsize=20)
-        ax.set_xlabel(self.x_label, fontsize=15)
-        ax.set_ylabel(self.y_label, fontsize=15)
-        # Adjust other plot settings
-        plt.xticks(rotation=self.rotation)
-        ax.yaxis.set_visible(self.y_visible)
-        # Display the plot
-        st.pyplot(fig)
-
-    def count_plot(self):
-        fig, ax = plt.subplots(figsize=(8, 6))
-        
-        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-            if self.df_combinado.empty:
-                st.subheader('No hay datos para graficar, ajuste los filtros.')
-                return
-            sns.countplot(data=self.df_combinado, x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), dodge=True, order=self.order, hue='Periodo')
-        else:
-            if self.df.empty:
-                st.subheader('No hay datos para graficar, ajuste los filtros.')
-                return
-            sns.countplot(data=self.df, x=self.x, ax=ax, color=self.color, order=self.order)
-        
-        # Añadir anotaciones al gráfico
-        total = sum([p.get_height() for p in ax.patches])
-        for p in ax.patches:
-            if p.get_height() > 0:
-                value = int(p.get_height())
-                percentage = 100 * p.get_height() / total
-                ax.annotate(f'{value} ', (p.get_x() + p.get_width() / 2, p.get_height()), ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation=self.rotation2)
-
-        # Configurar el título y etiquetas
-        ax.set_title(self.title, fontsize=20)
-        ax.set_xlabel(self.x_label, fontsize=15)
-        ax.set_ylabel('Frecuencia', fontsize=15)
-        
-        plt.xticks(rotation=self.rotation, ha='right')
-        st.pyplot(fig)
-
-    
-
-
-    def displot(self):
-        fig, ax = plt.subplots(figsize=(8, 6))
-
-        # Verificar si es necesario dividir por 'Antes' y 'Después'
-        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-            return
-        else:
-            sns.histplot(data=self.df,x=self.x,hue=self.hue,multiple='dodge',shrink=0.8,palette='muted',ax=ax)
-        ax.set_title(self.title, fontsize=20)
-        ax.set_xlabel(self.x_label, fontsize=15)
-        ax.set_ylabel('Frecuencia', fontsize=15)
-        self.rotation = 45
-        plt.xticks(rotation=self.rotation, ha='right')
-
-        st.pyplot(fig)
-
-
-
-
-
-    def bar_plot(self):
-        fig, ax = plt.subplots(figsize=(8, 6))
-        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-            if self.df_combinado.empty:
-                st.subheader('No hay datos para graficar, ajuste los filtros.')
-                return
-            sns.barplot(data=self.df_combinado, x=self.x, y=self.y, ax=ax, palette=sns.light_palette(self.color, n_colors=2), order=self.order, hue='Periodo', ci=None)
-        else:
-            sns.barplot(data=self.df, x=self.x, y=self.y, ax=ax, color=self.color, order=self.order, ci=None)
-        total = sum([p.get_height() for p in ax.patches])
-        for p in ax.patches:
-            if p.get_height() > 0:
-                value = int(p.get_height())
-                percentage = 100 * p.get_height() / total
-                ax.annotate(f'{value} ({percentage:.1f}%)', (p.get_x() + p.get_width() / 2, p.get_height() ) , ha='center', va='bottom', fontsize=self.fontsize2, color='grey', rotation = self.rotation2)
-       
-        ax.set_title(self.title, fontsize=20)
-        ax.set_xlabel(self.x_label, fontsize=15)
-        ax.set_ylabel(self.y_label, fontsize=15)
-        plt.xticks(rotation=45, ha='right')
-        st.pyplot(fig)
-
-    def scatter_plot(self):
-        fig, ax = plt.subplots(figsize=(8, 6))
-        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-            if self.df_combinado.empty:
-                st.subheader('No hay datos para graficar, ajuste los filtros.')
-                return
-            sns.scatterplot(data=self.df_combinado, x=self.x, y=self.y, ax=ax, hue='Periodo', palette=sns.light_palette(self.color, n_colors=2))
-        else:
-            sns.scatterplot(data=self.df, x=self.x, y=self.y, ax=ax, color=self.color)
-        ax.set_title(self.title, fontsize=20)
-        ax.set_xlabel(self.x_label, fontsize=15)
-        ax.set_ylabel(self.y_label, fontsize=15)
-        ax.yaxis.set_visible(self.y_visible)
-        if self.rotation:
-            plt.xticks(rotation=45)
-        st.pyplot(fig)
-
-    def box_plot(self):
-        fig, ax = plt.subplots(figsize=(8, 6))
-        if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
-            if self.df_combinado.empty:
-                st.subheader('No hay datos para graficar, ajuste los filtros.')
-                return
-            sns.boxplot(data=self.df_combinado, x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), hue='Periodo')
-        else:
-            sns.boxplot(data=self.df, x=self.x, ax=ax, color=self.color)
-        ax.set_title(self.title, fontsize=20)
-        ax.set_xlabel(self.x_label, fontsize=15)
-        ax.set_ylabel(self.y_label, fontsize=15)
-        ax.yaxis.set_visible(self.y_visible)
-        plt.xticks(rotation=self.rotation)
-        st.pyplot(fig)
-        
-    def map(self): 
-        layer = pdk.Layer("HeatmapLayer",data=self.df,  get_position='[Longitude, Latitude]',  opacity=0.9,  radius_pixels=100,  intensity=1,  )
-        view_state = pdk.ViewState(latitude=self.df['Latitude'].mean(),  longitude=self.df['Longitude'].mean(),  zoom=5,  pitch=50  )
-        tooltip = {"html": "<b>Province:</b> {provincia}<br><b>Quantity:</b> {quantity}","style": {"backgroundColor": "steelblue","color": "white"}}
-        deck = pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip)
-        st.pydeck_chart(deck)
 
 def main():
     # Initialize the Authentication
@@ -1542,8 +1671,8 @@ def main():
                                     st.subheader("No hay suficientes datos para continuar, por favor ajuste los filtros.")
                                     return
 
-                            column_order =['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'Exposición Luz Artifical', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'Exposición Luz Natural' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
-                            column_order_combinado = ['date_recepcion_data', 'user_id', 'SEGUISTE_RECOMENDACIONES', 'days_diff', 'Periodo' ,'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'Exposición Luz Artifical', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'Exposición Luz Natural' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
+                            column_order =['date_recepcion_data', 'user_id', 'Recomendaciones', 'days_diff', 'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'Exposición Luz Artifical', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'Exposición Luz Natural' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
+                            column_order_combinado = ['date_recepcion_data', 'user_id', 'Recomendaciones', 'days_diff', 'Periodo' ,'age', 'age_category', 'genero', 'provincia', 'localidad', 'Latitude', 'Longitude', 'RECOMENDACIONES_AJUSTE', 'date_generacion_recomendacion', 'FOTICO_luz_natural_8_15_integrada', 'Exposición Luz Artifical', 'NOFOTICO_estudios_integrada', 'NOFOTICO_trabajo_integrada', 'NOFOTICO_otra_actividad_habitual_si_no', 'NOFOTICO_cena_integrada', 'HAB_Hora_acostar', 'HAB_Hora_decidir', 'HAB_min_dormir', 'HAB_Soffw', 'NOFOTICO_HAB_alarma_si_no', 'HAB_siesta_integrada', 'HAB_calidad', 'LIB_Hora_acostar', 'LIB_Hora_decidir', 'LIB_min_dormir', 'LIB_Offf', 'LIB_alarma_si_no', 'MEQ_score_total','rec_NOFOTICO_HAB_alarma_si_no', 'Exposición Luz Natural' ,'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',	'rec_NOFOTICO_estudios_integrada', 'rec_NOFOTICO_trabajo_integrada', 'rec_NOFOTICO_otra_actividad_habitual_si_no',	'rec_NOFOTICO_cena_integrada',	'rec_HAB_siesta_integrada',  'MSFsc', 'HAB_SDw', 'SJL', 'HAB_SOnw_centrado']
                             df_all = df_all[column_order]
                             df_filtered = df_filtered[column_order]
                 
