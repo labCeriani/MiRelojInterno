@@ -1361,7 +1361,7 @@ class PlotGenerator:
             if self.df_combinado.empty:
                 st.subheader('No hay datos para graficar, ajuste los filtros.')
                 return
-            sns.countplot(data=self.df_combinado, x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), dodge=True, order=self.order, hue='Periodo')
+            sns.countplot(data=self.df_combinado, x=self.x, ax=ax, palette=sns.light_palette(self.color, n_colors=2), dodge=False, order=self.order, hue='Periodo')
         else:
             if self.df.empty:
                 st.subheader('No hay datos para graficar, ajuste los filtros.')
@@ -1392,7 +1392,7 @@ class PlotGenerator:
 
         if st.session_state['ambas_antes_despues_' + self.plot_id] == 'Antes vs Después':
             g = sns.FacetGrid(self.df_combinado, col='Periodo', height=6, aspect=1.33, hue=self.hue, palette='muted')
-            g.map(sns.histplot, self.x, multiple='dodge', shrink=0.8)
+            g.map(sns.histplot, self.x, multiple='dodge', shrink=1)
             g.set_axis_labels(self.x_label, "Frecuencia")
             g.set_titles(col_template="{col_name}")
             # Ajuste de etiquetas de ejes y títulos
@@ -1418,7 +1418,7 @@ class PlotGenerator:
             
         else:
             fig, ax = plt.subplots(figsize=(8, 6))
-            sns.histplot(data=self.df,x=self.x,hue=self.hue,multiple='dodge',shrink=0.8,palette='muted',ax=ax)
+            sns.histplot(data=self.df,x=self.x,hue=self.hue,multiple='stack',shrink=0.8,palette='muted',ax=ax)
             ax.set_title(self.title, fontsize=20)
             ax.set_xlabel(self.x_label, fontsize=15)
             ax.set_ylabel('Frecuencia', fontsize=15)
