@@ -522,7 +522,7 @@ class StreamLit:
             )
 
             st.sidebar.button("Detectar Anomalías", key='ia_button_' + self.plot_id)
-
+#hp;a
          
 class Filters:
     def __init__(self, df, plot_id):
