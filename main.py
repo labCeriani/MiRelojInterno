@@ -534,6 +534,9 @@ class Filters:
 
     def entries_users(self, df):
         return df.drop_duplicates(subset='user_id', keep='last')
+    def entries_users(self, df):
+        return df.drop_duplicates(subset='user_id', keep='last')
+    
 
     def dates(self, df):
         date_min = pd.to_datetime(st.session_state[f'start_date_input_{self.plot_id}'])
