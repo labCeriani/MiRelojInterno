@@ -1878,6 +1878,3 @@ def main():
 
 main()
 
-
-#streamlit run '/Users/tomasmendietarios/Library/Mobile Documents/com~apple~CloudDocs/I.T.B.A/MiRelojInterno/main.py'
-
