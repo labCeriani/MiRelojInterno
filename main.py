@@ -497,14 +497,16 @@ class StreamLit:
             'LIB_Hora_acostar',
             'LIB_Hora_decidir',
             'LIB_min_dormir',
-            'LIB_Offf'
+            'LIB_Offf',
+            'HAB_Soffw'
+            
         ]
 
-        st.sidebar.checkbox("Análisis con IA", key='ia_checkbox_' + self.plot_id)
+        st.sidebar.checkbox("Entradas Anómalas", key='ia_checkbox_' + self.plot_id)
 
         if st.session_state['ia_checkbox_' + self.plot_id]:
             st.sidebar.multiselect(
-                "Seleccioná variables para IA",
+                "Seleccioná variables",
                 options=columnas_ia_predefinidas,
                 default=columnas_ia_predefinidas,
                 key='ia_variables_' + self.plot_id
@@ -513,8 +515,8 @@ class StreamLit:
             st.sidebar.slider(
                 "Sensibilidad del modelo (porcentaje de anomalías)",
                 min_value=0.01,
-                max_value=0.5,
-                value=0.1,
+                max_value=0.1,
+                value=0.05,
                 step=0.01,
                 key='ia_contamination_' + self.plot_id
             )
@@ -560,16 +562,16 @@ class Filters:
         # Modelo IA
         modelo = IsolationForest(contamination=contamination, random_state=42)
         df_filtrado["predicción"] = modelo.fit_predict(X_scaled)
-        df_filtrado["estado"] = df_filtrado["predicción"].map({1: "Normal", -1: "Sospechoso"})
+        df_filtrado["estado"] = df_filtrado["predicción"].map({1: "Normal", -1: "Anómalo"})
 
         # Unir resultado
         df_resultado = df.merge(df_filtrado[[user_col, "estado"]], on=user_col, how="left")
         df_resultado["estado"] = df_resultado["estado"].fillna("No evaluado")
 
         # Mostrar usuarios anómalos en pantalla
-        df_anomalos = df_resultado[df_resultado["estado"] == "Sospechoso"]
+        df_anomalos = df_resultado[df_resultado["estado"] == "Anómalo"]
         if not df_anomalos.empty:
-            st.subheader("🔍 Usuarios detectados como *sospechosos* por la IA")
+            st.subheader("🔍 Usuarios detectados como *anómalos*")
             st.dataframe(df_anomalos[[user_col] + variables + ["estado"]])
         else:
             st.success("No se detectaron usuarios anómalos.")
@@ -672,8 +674,8 @@ class Filters:
         
         filtered_df = df[df['user_id'] == user_id]
         if filtered_df.empty:
-            return df  # Devuelve el DataFrame original si no se encuentra el usuario
-        return filtered_df  # Devuelve el DataFrame filtrado si se encuentra el usuario
+            return df  
+        return filtered_df  
 
     def users_count(self, df, n):
         user_counts = df['user_id'].value_counts()
@@ -764,11 +766,11 @@ class Filters:
                 # Filtra solo los usuarios sospechosos
                 df_sospechosos = df_anomalias[df_anomalias["estado"] == "Sospechoso"]
 
-                if not df_sospechosos.empty:
-                    st.subheader("🔍 Usuarios detectados como *sospechosos* por IA")
-                    st.dataframe(df_sospechosos[[user_col] + variables_ia + ["estado"]])
-                else:
-                    st.success("No se detectaron usuarios anómalos.")
+                #if not df_sospechosos.empty:
+                    #st.subheader("🔍 Usuarios detectados como *sospechosos* por IA")
+                    #st.dataframe(df_sospechosos[[user_col] + variables_ia + ["estado"]])
+                #else:
+                   #s st.success("No se detectaron usuarios anómalos.")
            
 class PlotGenerator:
     def __init__(self, df, df_combinado, plot_id):
@@ -1119,8 +1121,7 @@ class PlotGenerator:
             st.title("Horario de acostarse en días Hábiles")
             st.subheader('¿A qué hora te acostás?')
             st.subheader('Los diás hábiles me acuesto: HH:MM AM/PM')
-            st.subheader('')
-            st.subheader('')
+
             self.bins = 24
             #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -1135,17 +1136,13 @@ class PlotGenerator:
         elif st.session_state[f'plot_{self.plot_id}'] == 'Horario decidir dormir - Hábiles':
             st.title('Horario decidir dormir en días hábiles')
             st.subheader('Una vez que me acosté, decido dormirme: HH:MM AM/PM')
-            st.subheader('')
-            st.subheader('')
-            st.subheader('')
             self.title = "Horario de decidir dormir en días hábiles"
             self.y_label = 'Frecuencia'
             self.x_label = "Horas"
 
             self.bins = 24
-            #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
-            self.x_label = st.session_state[f'plot_{self.plot_id}']
+            self.x_label = 'Horas'
             self.y_label = 'Frecuencia'
             self.fontsize2 = 6
             self.histo_plot()
