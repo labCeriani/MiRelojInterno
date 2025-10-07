@@ -275,7 +275,7 @@ class DataLoader:
         self.df.rename(columns={'rec_FOTICO_luz_natural_8_15_integrada': 'Exposición Luz Natural'}, inplace=True)
         self.df.rename(columns={'SEGUISTE_RECOMENDACIONES': 'Recomendaciones'}, inplace=True)
 
-        self.df['RECOMENDACIONES_AJUSTE'] = self.df['RECOMENDACIONES_AJUSTE'].apply(lambda x: x + 1)
+       # self.df['RECOMENDACIONES_AJUSTE'] = self.df['RECOMENDACIONES_AJUSTE'].apply(lambda x: x + 1)
         return self.df
     
    
@@ -448,9 +448,9 @@ class StreamLit:
             st.sidebar.date_input(f"Start Date", value=self.df['date_recepcion_data'].min(), key='start_date_input_' + self.plot_id)
             st.sidebar.date_input(f"End Date", value=self.df['date_recepcion_data'].max(), key='end_date_input_' + self.plot_id)
         
-        st.sidebar.checkbox(f'Persepción del cambio', key='persepcion_checkbox_' + self.plot_id)
+        st.sidebar.checkbox(f'Percepción del cambio', key='persepcion_checkbox_' + self.plot_id)
         if  st.session_state['persepcion_checkbox_' + self.plot_id]:
-            st.sidebar.selectbox(f"Persepción del cambio", options=[1,2,3,4,5] , key='persepcion_selectbox_' + self.plot_id)
+            st.sidebar.selectbox(f"Percepción del cambio", options=[1,2,3,4,5] , key='persepcion_selectbox_' + self.plot_id)
 
         st.sidebar.checkbox(f"Géneros", key='all_genders_checkbox_' + self.plot_id)
         if st.session_state['all_genders_checkbox_' + self.plot_id]:
@@ -954,7 +954,7 @@ class PlotGenerator:
             self.rotation = 45
             self.rotation2 = 80
             self.fontsize2 = 6
-            self.title = "Cantidad de usuarios por provinica"
+            self.title = "Cantidad de usuarios por provincia"
             self.count_plot()
             self.rotation = None   
         
@@ -1003,7 +1003,7 @@ class PlotGenerator:
                 data_count_despues = df_despues[df_despues[data_dictionary[st.session_state[f'plot_{self.plot_id}']]].notna()]['user_id'].nunique()
 
                 st.write("""
-                ## Análisis antes
+                ## Análisis antesƒpers
                 ### Cantidad de datos: {}
                 ### Media: {:.2f}
                 ### Mediana: {:.2f}
@@ -1056,7 +1056,7 @@ class PlotGenerator:
             self.count_plot()
             ##self.pie_plot()
             
-            self.title = 'Exposición a la luz artifical por provinica'
+            self.title = 'Exposición a la luz artifical por provincia'
             self.y_label = st.session_state[f'plot_{self.plot_id}']
             self.hue = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x = 'provincia'
@@ -1064,12 +1064,12 @@ class PlotGenerator:
             self.displot()
         
         elif st.session_state[f'plot_{self.plot_id}'] == "Estudios no foticos integrados":
-            st.title("Estudios no fóticos integrados")
+            st.title("Actividades Vinculadas al Estudio")
             st.subheader('Si estás estudiando, ¿tenés clases?')
             st.subheader('-1: No estudio y/o no tengo clases')
             st.subheader('0: Sí, menos de 3 días por semana')
             st.subheader('1: Sí, 3 días o más por semana')
-            self.title = "Estudios no fóticos integrados"
+            self.title = "Actividades Vinculadas al Estudio"
             #self.colors()
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
@@ -1148,7 +1148,7 @@ class PlotGenerator:
             self.histo_plot()
         
         elif st.session_state[f'plot_{self.plot_id}'] == 'Minutos dormir - Hábiles':
-            st.title('Minutos dormir en días Hábiles')
+            st.title('Minutos para conciliar el sueño en días hábiles')
             st.subheader('¿Cuántos minutos tardaás en dormirte?')
             st.subheader('Tardo ... minutos en dormirme: Entero')
             st.subheader('')
@@ -1158,7 +1158,7 @@ class PlotGenerator:
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
-            self.title = "Minutos en dormir en días hábiles"
+            self.title = 'Minutos para conciliar el sueño en días hábiles'
             self.y_label = 'Frecuencia'
             self.x_label = "Horas"
             self.fontsize2 = 6
@@ -1319,7 +1319,7 @@ class PlotGenerator:
             self.x_label = st.session_state[f'plot_{self.plot_id}']
             self.y_label = 'Frecuencia'
             self.count_plot()
-        elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Estudios no foticos integrados":
+        elif st.session_state[f'plot_{self.plot_id}'] == "Recomendación - Estudios no fóticos integrados":
             st.title('"Recomendación - Estudios no fóticos integrados"')
             st.subheader('')
             st.subheader('')
@@ -1401,9 +1401,9 @@ class PlotGenerator:
             
             self.y = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
             self.y_label = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
-            self.title='MSFsc vs Cena integrada'
+            self.title='MSFsc vs Cena Integrada en Días Hábiles'
             self.x = 'NOFOTICO_cena_integrada'
-            self.x_label = 'Cena Integrada'
+            self.x_label = 'Cena Integrada en Días Hábiles'
             self.violin_plot()
             
             self.y = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
@@ -1470,21 +1470,21 @@ class PlotGenerator:
             
         elif st.session_state[f'plot_{self.plot_id}'] == 'Hora de inicio de sueño no laboral centrada':
             
-            st.title('Hora de inicio de sueño no laboral centrada')
+            st.title('Hora de Inicio del Sueño en Días Libres')
             self.bins=24
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
-            self.x_label = st.session_state[f'plot_{self.plot_id}']
+            self.x_label = 'Hora de Inicio del Sueño en Días Libres'
             self.y_label = 'Frecuencia'
             self.bins = 12
-            self.title = "Hora de inicio de sueño no laboral centrada"
+            self.title = "Hora de Inicio del Sueño en Días Libres"
             self.histo_plot()
             
             self.x = data_dictionary[st.session_state[f'plot_{self.plot_id}']]
-            self.x_label = st.session_state[f'plot_{self.plot_id}']
+            self.x_label = "Hora de Inicio del Sueño en Días Libres"
             self.y_visible = False
             self.y_label = None
             self.y = 'user_id'
-            self.title = "Hora de inicio de sueño no laboral centrada"
+            self.title = "Hora de Inicio del Sueño en Días Libres"
             self.box_plot()
             
     def lineplot(self):
@@ -1877,4 +1877,3 @@ main()
 
 
 #streamlit run '/Users/tomasmendietarios/Library/Mobile Documents/com~apple~CloudDocs/I.T.B.A/MiRelojInterno/main.py'
-
