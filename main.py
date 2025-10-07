@@ -120,7 +120,7 @@ data_dictionary = {
     'Hora despertar - Libres': 'LIB_Offf',
     'Alarma - Libres': 'LIB_alarma_si_no',
     'Recomendación - Alarma no fotica (sí/no)': 'rec_NOFOTICO_HAB_alarma_si_no',
-    'Recomendación - Luz natural (8-15)': 'Exposición Luz Natural',
+    'Recomendación - Luz natual (8-15)': 'Exposición Luz Natural',
     'Recomendación - Luz artificial (8-15)': 'rec_FOTICO_luz_ambiente_8_15_luzelect_si_no_integrada',
     'Recomendación - Estudios no foticos integrados': 'rec_NOFOTICO_estudios_integrada',
     'Recomendación - Trabajo no fotico integrado': 'rec_NOFOTICO_trabajo_integrada',
